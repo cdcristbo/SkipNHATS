@@ -4,13 +4,13 @@ library(haven)
 library(tidyr)
 library(reshape2)
 library(readxl)
+library(stringr)
+# Specify the path to your Excel file
+base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
 
 # Read and clean the Crosswalk data
-Crosswalk <- read_excel("NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx") %>% 
+Crosswalk <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx")) %>% 
   distinct(`Questionnaire ITEM`, `Variable name`)
-
-# Set common base path
-base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/workNhats/"
 
 # Set the path to the R script
 getRowsWithNonzeroValues <- paste0(base_path, "Functions/getRowsWithNonzeroValues.R")
@@ -23,7 +23,7 @@ source(getRowsWithNonzeroValues)
 
 # Get a list of all .dta files in the folder
 file_list <- list.files(path = folder_path, pattern = ".dta", full.names = TRUE)
-# file_list = file_list[1]
+file_list = file_list[1]
 
 # Create an empty dataframe to store the results
 result_df <- data.frame(variable = character(0), round1Inaplicable = character(0))
@@ -76,6 +76,7 @@ spread_df2 <- spread(result_df2 %>% select(-round1Inaplicable), key = round, val
 # Combine the reshaped dataframes
 final = spread_df %>% 
   left_join(spread_df2, by = "label")
+
 
 # Define the desired column order
 column_order <- c("label", "1.x", "1.y", "2.x", "2.y", "3.x", "3.y", "4.x", "4.y", "5.x", "5.y", "6.x", "6.y", 

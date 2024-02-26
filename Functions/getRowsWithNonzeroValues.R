@@ -1,4 +1,3 @@
-library(dply)
 # Function to create a dataframe with the variable and values
 # where '-1' has values different from zero in a contingency table
 # targetColumn = "hc1kneesurg"
