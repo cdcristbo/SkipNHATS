@@ -3,7 +3,7 @@ library(readxl)
 library(stringr)
 
 # Set common base path
-base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/"
+base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/SkipNHATS/"
 
 # Read the necessary Excel files
 Part2 <- read_excel(paste0(base_path, "workNhats/datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
