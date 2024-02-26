@@ -9,18 +9,19 @@ library(stringr)
 base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
 
 # Read the necessary Excel files
-Part2 <- read_excel(paste0(base_path, "SkipNHATS/datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
-fullList <- read_excel(paste0(base_path, "SkipNHATS/datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
-trueNames <- read_excel(paste0(base_path, "SkipNHATS/datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
+Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
+fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
+trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
 
 load(paste0(base_path, "outcomes/FinalPresent.RData"))
 getRowsGroup1 <- paste0(base_path, "Functions/getRowsGroup1.R")
 getRowsGroup2 <- paste0(base_path, "Functions/getRowsGroup2.R")
+processData <- paste0(base_path, "Functions/processData.R")
 
 # Load the R script containing getRowsGroup1 and getRowsGroup2 function2
 source(getRowsGroup1)
 source(getRowsGroup2)
-
+source(processData)
 # Set the folder path
 folder_path <- paste0(base_path, "datasets/SP")
 
