@@ -7,9 +7,8 @@ library(tidyverse)
 
 
 # Set common base path
-base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/workNhats/"
+base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
 
-fullList <- read_excel(paste0(base_path,"datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
 box = fullList %>% 
   distinct(`tblItem-ItemTag`,`tblQuestionText-QuestionText - EN`) %>% 
   filter(str_detect(`tblItem-ItemTag`, "BOX"))
@@ -55,8 +54,12 @@ FinalPresentHC = patternData %>%
   select(-c(id,nameSkip,countpat,name1,name2,fldSectionID,`tblItem-Numb`,
             `tblQuestionText-QuestionText - EN`,`tblQuestionText-QuestionText - ES`,
             fldResponseSchemeName,group_index,`Variable name`,`Variable label`,`1.x`)) %>% 
-  rename(Resid1Inaplicable= `1.y`)
+  rename(Resid1Inaplicable= `1.y`) %>%
+  select(-name_if) %>%
+  distinct() 
+View(FinalPresentHC)
 
+write.csv(FinalPresentHC, file = paste0(base_path, "outcomes/delete2.csv"), append = FALSE, quote = TRUE, sep = " ")
 #write.csv(FinalPresentHC,file = "FinalPresentHCStudy.csv")
 FinalPresentHC
 

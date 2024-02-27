@@ -73,5 +73,6 @@ for (i in seq_len(nrow(patternData))) {
 
 results_df = results_df %>% 
   distinct()
-  View(results_df)
+
+#write.csv(results_df, file = paste0(base_path, "outcomes/delete.csv"), append = FALSE, quote = TRUE, sep = " ")
 #save(results_df, file = paste0(base_path, "outcomes/results_df.RData"))
