@@ -69,9 +69,9 @@ for (i in seq_len(nrow(patternData))) {
   }, error = function(e) {
     cat("Error in row", i, ":", conditionMessage(e), "\n")
   })
-}
-results_df = results_df %>% 
-  distinct()
-View(results_df)
+  results_df = results_df %>% 
+    distinct()
+  }
+
 #write.csv(results_df, file = paste0(base_path, "outcomes/delete.csv"), append = FALSE, quote = TRUE, sep = " ")
-#save(results_df, file = paste0(base_path, "outcomes/results_dfV02.RData"))
+#save(results_df, file = paste0(base_path, "outcomes/SkipPattern.RData"))

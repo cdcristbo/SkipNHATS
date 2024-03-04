@@ -8,15 +8,22 @@ library(tidyverse)
 
 # Set common base path
 base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
-
+fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
 trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
+Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
+load(paste0(base_path, "outcomes/Rdresid.RData"))# result_df
+load(paste0(base_path, "outcomes/SkipPattern.RData"))#results_df
+processData <- paste0(base_path, "Functions/processData.R")
+source(processData)
+patternData = processData(Part2, fullList, trueNames)
 
-trueNames2 <- result_df2 %>% 
+trueNames2 <- result_df %>% 
 mutate(label = paste0("hc1",label)) %>%
               rename('Variable name' = label) %>%
               left_join(trueNames %>% 
                           select(`Variable name`,`Questionnaire ITEM`)) %>%
                           select(`Variable name`,`Questionnaire ITEM`,indicatorByResIDValue,indicatorByResID) 
+
 
 box = fullList %>% 
   distinct(`tblItem-ItemTag`,`tblQuestionText-QuestionText - EN`) %>% 
@@ -29,26 +36,36 @@ combined_resultsHC_round1 = load(paste0(base_path, "outcomes/combined_results.Rd
 #combined_resultsHC_round1 <- read_csv("combined_resultsHC_round1.csv")
 #save(results_df,file = "results_df.RData")
 #load("results_df.RData")
-datsRdresid = final %>% 
+
+datsRdresid = result_df %>% 
   mutate(firstskipPattern = paste0("hc1",label)) %>% 
   select(-label)
 
 #merge both functions
-patternData = FinalPresent %>% 
-select(-name_if)  %>% 
-distinct()
+# patternData = FinalPresent %>% 
+# select(-name_if)  %>% 
+# distinct()
 
 patternData2 = patternData %>% 
   filter(!is.na(pattern)&!is.na(Variable.name))
+
+
+datsRdresid = result_df %>% 
+  mutate(firstskipPattern = paste0("hc1",label)) %>% 
+  select(-label)
+
 
 FinalPresentHC = patternData %>% 
   left_join(results_df %>% 
               rename(Variable.name = variable))  %>% 
   #select(-c(priorvariable,variable)) %>%
-  left_join(datsRdresid %>% 
+  left_join(result_df %>% 
+              mutate(firstskipPattern = paste0("hc1",label)) %>% 
+              select(-label) %>% 
               rename(Variable.name = firstskipPattern)) %>% 
   mutate(skipPrior = gsub(",\\s*-1", "", skipPrior)) %>%
-  mutate(skippedResid = ifelse(is.na(`1.y`) | `1.y` == " ",0,1),
+  
+  mutate(skippedResid = ifelse(OtherSkip2 == "1, 2",1,0),
          skippedbyBoth = ifelse(
     is.na(skipPrior) | 
       grepl("-8|-7|=(\\d+)", skipPrior) | 
@@ -60,13 +77,13 @@ FinalPresentHC = patternData %>%
   left_join(box %>% 
               rename(boxText = `tblQuestionText-QuestionText - EN`,
                      Questionnaire.ITEM = `tblItem-ItemTag`)) %>% 
-  select(-c(id,nameSkip,countpat,name1,name2,fldSectionID,`tblItem-Numb`,
-            `tblQuestionText-QuestionText - EN`,`tblQuestionText-QuestionText - ES`,
-            fldResponseSchemeName,group_index,`Variable name`,`Variable label`,`1.x`)) %>% 
-  rename(Resid1Inaplicable= `1.y`) %>%
+  # select(-c(id,nameSkip,countpat,name1,name2,fldSectionID,`tblItem-Numb`,
+  #           `tblQuestionText-QuestionText - EN`,`tblQuestionText-QuestionText - ES`,
+  #           fldResponseSchemeName,group_index,`Variable name`,`Variable label`,`1.x`)) %>% 
+  # rename(Resid1Inaplicable= `1.y`) %>%
  # select(-name_if) %>%
  # distinct()  %>%
-  mutate(indicatorResid = ifelse(Resid1Inaplicable=="1, 2",1,0)   ) %>% 
+  #mutate(indicatorResid = ifelse(Resid1Inaplicable=="1, 2",1,0)   ) %>% 
   #mutate(  Indicator2 =ifelse(is.na(Indicator2),0,Indicator2)   ) %>%
   mutate(Indicator2 = case_when(skippedResid==1 & skippedbyBoth==0 ~ 0,
                                 skippedResid==1 & skippedbyBoth==1 ~ 1,
@@ -74,7 +91,8 @@ FinalPresentHC = patternData %>%
                                 skippedResid==0 & skippedbyBoth==1 ~ 1,
                                 skippedResid==0 & skippedbyBoth==2 ~ 0,  
                                 skippedResid==0 & skippedbyBoth==0 ~ 0)  ) %>%
-  left_join(results_box %>% 
+# until here works
+    left_join(results_box %>% 
               rename(Questionnaire.ITEM = variable)) %>% 
   mutate(IndicatorBox = ifelse(boxVal==-1 | 
                                  boxValminus %in% c(-8, -7)   |

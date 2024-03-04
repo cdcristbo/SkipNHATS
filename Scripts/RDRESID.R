@@ -2,7 +2,6 @@
 library(dplyr)
 library(haven)
 library(tidyr)
-library(reshape2)
 library(readxl)
 library(stringr)
 # Specify the path to your Excel file
@@ -62,66 +61,67 @@ for (file in file_list) {
     })
   }
 }
-View(result_df2)
-
 # Process and clean the result dataframe
-result_df2 <- result_df %>% 
+result_df <- result_df %>% 
   select(-c(re, OtherSkip)) %>% 
   mutate(indicatorByResID = ifelse(indicatorByResIDValue=="-1", 1, 0)) %>%
   mutate(round = as.integer(gsub("hc(\\d+).*", "\\1", variable))) %>% 
   mutate(label = sub("hc\\d+", "", variable)) %>%
   select(-variable) %>% 
   filter(round==1)
+View(result_df2)
 
-#save(result_df2, file = paste0(base_path, "outcomes/results_dfV02.RData"))
+#save(result_df, file = paste0(base_path, "outcomes/Rdresid.RData"))
 
-
-# Reshape the dataframe using spread function
-spread_df <- spread(result_df2 %>% select(-OtherSkip2), key = round, value = round1Inaplicable)
-spread_df2 <- spread(result_df2 %>% select(-round1Inaplicable), key = round, value = OtherSkip2)
-
-# Combine the reshaped dataframes
-final = spread_df %>% 
-  left_join(spread_df2, by = "label")
-
-
-# Define the desired column order
-column_order <- c("label", "1.x", "1.y", "2.x", "2.y", "3.x", "3.y", "4.x", "4.y", "5.x", "5.y", "6.x", "6.y", 
-                  "7.x", "7.y", "8.x", "8.y", "9.x", "9.y", "10.x","10.y","11.x","11.y", "12.x", "12.y")
-
-# Reorder the columns in the 'final' data frame
-final <- final %>%
-  select(column_order)  
-
-# Define the new column names
-new_names <- c("label", 
-               "1.Inaplicable", "1.OtherSkip", 
-               "2.Inaplicable", "2.OtherSkip", 
-               "3.Inaplicable", "3.OtherSkip", 
-               "4.Inaplicable", "4.OtherSkip", 
-               "5.Inaplicable", "5.OtherSkip", 
-               "6.Inaplicable", "6.OtherSkip", 
-               "7.Inaplicable", "7.OtherSkip", 
-               "8.Inaplicable", "8.OtherSkip", 
-               "9.Inaplicable", "9.OtherSkip", 
-               "10.Inaplicable", "10.OtherSkip", 
-               "11.Inaplicable", "11.OtherSkip", 
-               "12.Inaplicable", "12.OtherSkip")
-
-# Rename the columns
-final2 <- final %>%
-  rename_with(~ new_names, everything()) %>% 
-  mutate_all(~na_if(., "")) 
-
-# Save the combined results to a file if desired
-# save(final, file = paste0(base_path, "outcomes/combined_results.RData"))
-
-finalVer = final2 %>% 
-  mutate(`Variable name` = paste0("hc1",label)) %>% 
-  left_join(Crosswalk)
-
-subset_result <- Crosswalk %>%
-  filter(grepl("HC", `Questionnaire ITEM`, ignore.case = TRUE))
-
-# setdiff(subset_result$`Questionnaire ITEM`,unique(finalVer$`Questionnaire ITEM`) )
-# setdiff(unique(finalVer$`Questionnaire ITEM`),subset_result$`Questionnaire ITEM`)
+# 
+# 
+# 
+# # Reshape the dataframe using spread function
+# spread_df <- spread(result_df2 %>% select(-OtherSkip2), key = round, value = round1Inaplicable)
+# spread_df2 <- spread(result_df2 %>% select(-round1Inaplicable), key = round, value = OtherSkip2)
+# 
+# # Combine the reshaped dataframes
+# final = spread_df %>% 
+#   left_join(spread_df2, by = "label")
+# 
+# 
+# # Define the desired column order
+# column_order <- c("label", "1.x", "1.y", "2.x", "2.y", "3.x", "3.y", "4.x", "4.y", "5.x", "5.y", "6.x", "6.y", 
+#                   "7.x", "7.y", "8.x", "8.y", "9.x", "9.y", "10.x","10.y","11.x","11.y", "12.x", "12.y")
+# 
+# # Reorder the columns in the 'final' data frame
+# final <- final %>%
+#   select(column_order)  
+# 
+# # Define the new column names
+# new_names <- c("label", 
+#                "1.Inaplicable", "1.OtherSkip", 
+#                "2.Inaplicable", "2.OtherSkip", 
+#                "3.Inaplicable", "3.OtherSkip", 
+#                "4.Inaplicable", "4.OtherSkip", 
+#                "5.Inaplicable", "5.OtherSkip", 
+#                "6.Inaplicable", "6.OtherSkip", 
+#                "7.Inaplicable", "7.OtherSkip", 
+#                "8.Inaplicable", "8.OtherSkip", 
+#                "9.Inaplicable", "9.OtherSkip", 
+#                "10.Inaplicable", "10.OtherSkip", 
+#                "11.Inaplicable", "11.OtherSkip", 
+#                "12.Inaplicable", "12.OtherSkip")
+# 
+# # Rename the columns
+# final2 <- final %>%
+#   rename_with(~ new_names, everything()) %>% 
+#   mutate_all(~na_if(., "")) 
+# 
+# # Save the combined results to a file if desired
+# # save(final, file = paste0(base_path, "outcomes/combined_results.RData"))
+# 
+# finalVer = final2 %>% 
+#   mutate(`Variable name` = paste0("hc1",label)) %>% 
+#   left_join(Crosswalk)
+# 
+# subset_result <- Crosswalk %>%
+#   filter(grepl("HC", `Questionnaire ITEM`, ignore.case = TRUE))
+# 
+# # setdiff(subset_result$`Questionnaire ITEM`,unique(finalVer$`Questionnaire ITEM`) )
+# # setdiff(unique(finalVer$`Questionnaire ITEM`),subset_result$`Questionnaire ITEM`)
