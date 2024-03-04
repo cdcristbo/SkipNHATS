@@ -69,7 +69,7 @@ getBox <- function(data, patternData, targetColumn) {
 }
 
 # Assuming you have a dataset called 'data' and 'patternData' as mentioned in the code
-
+View(patternData2)
 result <- getBox(data, patternData, targetColumn = "BOX HC4")
 results_box3 = results_box
 results_box = NULL

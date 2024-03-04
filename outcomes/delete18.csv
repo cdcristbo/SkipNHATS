@@ -1,0 +1,100 @@
+,Questionnaire.ITEM,pattern,skipPrior,Resid1Inaplicable,boxText,boxValminus,indicatorResid,Indicator2,,IndicatorBox,just,Variable name,indicatorByResIDValue,indicatorByResID,texResid
+1,HC1PRE,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+2,HC1,NA,NA, ,NA,NA,0,0,,0,0,hc1health,-1,1,resid=4
+3,HC1,NA,NA, ,NA,NA,0,0,,0,0,hc1health,-1,1,resid=4
+4,HC1,NA,NA, ,NA,NA,0,0,,0,0,hc1health,-1,1,resid=4
+5,HC1,NA,NA, ,NA,NA,0,0,,0,0,hc1health,-1,1,resid=4
+6,HC1,NA,NA, ,NA,NA,0,0,,0,0,hc1health,-1,1,resid=4
+7,HC2,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+8,HC2,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+9,BOX HC3,NA,NA,NA,"If HC2j = 1 (YES,CANCER), go to HC3.
+Otherwise, go to BOX HC4.","-8,-7,2",NA,0,,0,0,NA,NA,NA,NA
+10,HC3,NA,NA,"1, 2",NA,NA,1,1,,0,0,hc1cancerty1,-1,1,resid=4
+11,HC3,HC3=1,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+12,HC3,HC3=2,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+13,HC3,HC3=3,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+14,HC3,HC3=1,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+15,HC3,HC3=2,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+16,HC3,HC3=3,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+17,HC3,HC3=1,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+18,HC3,HC3=2,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+19,HC3,HC3=3,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+20,HC3,HC3=1,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+21,HC3,HC3=2,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+22,HC3,HC3=3,NA,"1, 2",NA,NA,1,0,,0,0,hc1cancerty1,-1,1,resid=4
+23,HC3B,HC3=1,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+24,HC3B,HC3=2,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+25,HC3B,HC3=3,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+26,BOX HC4,NA,NA,NA,"If HC2i = 1 (YES,DEMENTIA), go to HC4.
+Otherwise, go to HC5.","-8,2",NA,0,,0,0,NA,NA,NA,NA
+27,HC4,NA,NA,"1, 2",NA,NA,1,1,,0,0,hc1dementage,-1,1,resid=4
+28,HC5,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+29,HC5,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+30,HC5_2,NA,NA, ,NA,NA,0,0,,0,0,hc1brokebon2,-1,1,resid=4
+31,HC5_2,NA,NA, ,NA,NA,0,0,,0,0,hc1brokebon2,-1,1,resid=4
+32,HC6,NA,NA, ,NA,NA,0,0,,0,0,hc1serdisill,-1,1,resid=4
+33,HC6,HC6=2,NA, ,NA,NA,0,0,,0,0,hc1serdisill,-1,1,resid=4
+34,HC6A,HC6=2,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+35,HC7,NA,NA, ,NA,NA,0,0,,0,0,hc1hosptstay,-1,1,resid=4
+36,HC7,HC7=2,NA, ,NA,NA,0,0,,0,0,hc1hosptstay,-1,1,resid=4
+37,HC8,HC7=2,"-8,-7,2","1, 2",NA,NA,1,0,HC7=2,0,"HC7=2-8,-7,2",hc1hosovrnht,-1,1,resid=4
+38,HC9PRE,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+39,HC9A,NA,NA, ,NA,NA,0,0,,0,0,hc1kneesurg,-1,1,resid=4
+40,HC9A,NA,NA, ,NA,NA,0,0,,0,0,hc1kneesurg,-1,1,resid=4
+41,HC9B,HC9A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC9A=2-8,2",hc1knesrgyr,-1,1,resid=4
+42,HC9B,HC9A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC9A=2-8,2",hc1knesrgyr,-1,1,resid=4
+43,HC9C,"HC9A=2,HC9B=1","-8,1","1, 2",NA,NA,1,0,,0,"HC9A=2,HC9B=1-8,1",hc1ageknesur,-1,1,resid=4
+44,HC10A,NA,NA, ,NA,NA,0,0,,0,0,hc1hipsurg,-1,1,resid=4
+45,HC10A,NA,NA, ,NA,NA,0,0,,0,0,hc1hipsurg,-1,1,resid=4
+46,HC10B,HC10A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC10A=2-8,2",hc1hipsrgyr,-1,1,resid=4
+47,HC10B,HC10A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC10A=2-8,2",hc1hipsrgyr,-1,1,resid=4
+48,HC10C,"HC10A=2,HC10B=1","-8,1","1, 2",NA,NA,1,0,,0,"HC10A=2,HC10B=1-8,1",hc1agehipsur,-1,1,resid=4
+49,HC11A,NA,NA, ,NA,NA,0,0,,0,0,hc1catarsurg,-1,1,resid=4
+50,HC11A,NA,NA, ,NA,NA,0,0,,0,0,hc1catarsurg,-1,1,resid=4
+51,HC11B,HC11A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC11A=2-8,2",hc1catrsrgyr,-1,1,resid=4
+52,HC11B,HC11A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC11A=2-8,2",hc1catrsrgyr,-1,1,resid=4
+53,HC11C,"HC11A=2,HC11B=1","-8,1","1, 2",NA,NA,1,0,,0,"HC11A=2,HC11B=1-8,1",hc1agecatsur,-1,1,resid=4
+54,HC12A,NA,NA, ,NA,NA,0,0,,0,0,hc1bckspnsur,-1,1,resid=4
+55,HC12A,NA,NA, ,NA,NA,0,0,,0,0,hc1bckspnsur,-1,1,resid=4
+56,HC12B,HC12A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC12A=2-8,2",hc1backsrgyr,-1,1,resid=4
+57,HC12B,HC12A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC12A=2-8,2",hc1backsrgyr,-1,1,resid=4
+58,HC12C,"HC12A=2,HC12B=1","-1,1","1, 2",NA,NA,1,0,,0,"HC12A=2,HC12B=1-1,1",hc1agebcksrg,-1,1,resid=4
+59,HC13A,NA,NA, ,NA,NA,0,0,,0,0,hc1heartsurg,-1,1,resid=4
+60,HC13A,NA,NA, ,NA,NA,0,0,,0,0,hc1heartsurg,-1,1,resid=4
+61,HC13B,HC13A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC13A=2-8,2",hc1hartsrgyr,-1,1,resid=4
+62,HC13B,HC13A=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC13A=2-8,2",hc1hartsrgyr,-1,1,resid=4
+63,HC13C,"HC13A=2,HC13B=1","-8,1","1, 2",NA,NA,1,0,,0,"HC13A=2,HC13B=1-8,1",hc1agehrtsrg,-1,1,resid=4
+64,HC14PRE,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+65,HC14,NA,NA, ,NA,NA,0,0,,0,0,hc1fllsinmth,-1,1,resid=4
+66,HC14,NA,NA, ,NA,NA,0,0,,0,0,hc1fllsinmth,-1,1,resid=4
+67,HC15,NA,NA, ,NA,NA,0,0,,0,0,hc1worryfall,-1,1,resid=4
+68,HC15,NA,NA, ,NA,NA,0,0,,0,0,hc1worryfall,-1,1,resid=4
+69,HC16,HC15=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC15=2-8,2",hc1worrylimt,-1,1,resid=4
+70,HC16,HC15=2,"-8,2","1, 2",NA,NA,1,0,,0,"HC15=2-8,2",hc1worrylimt,-1,1,resid=4
+71,BOX HC17,NA,NA,NA,"If HC14 = 1 (YES), go to HC18.
+Otherwise, go to HC17.",1,NA,0,,0,0,NA,NA,NA,NA
+72,HC17,NA,NA,"1, 2",NA,NA,1,1,,0,0,hc1faleninyr,-1,1,resid=4
+73,HC17,NA,NA,"1, 2",NA,NA,1,1,,0,0,hc1faleninyr,-1,1,resid=4
+74,HC18,HC17=2,"-8,-7,2","1, 2",NA,NA,1,0,,0,"HC17=2-8,-7,2",hc1multifall,-1,1,resid=4
+75,HC18,HC17=2,"-8,-7,2","1, 2",NA,NA,1,0,,0,"HC17=2-8,-7,2",hc1multifall,-1,1,resid=4
+76,HC19,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+77,HC19,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+78,HC19,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+79,HC19,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+80,HC20PRE,NA,NA,NA,NA,NA,NA,0,,0,0,NA,NA,NA,NA
+81,HC20,NA,NA, ,NA,NA,0,0,,0,0,hc1aslep30mn,-1,1,resid=4
+82,HC20,NA,NA, ,NA,NA,0,0,,0,0,hc1aslep30mn,-1,1,resid=4
+83,HC20,NA,NA, ,NA,NA,0,0,,0,0,hc1aslep30mn,-1,1,resid=4
+84,HC20,NA,NA, ,NA,NA,0,0,,0,0,hc1aslep30mn,-1,1,resid=4
+85,HC20,NA,NA, ,NA,NA,0,0,,0,0,hc1aslep30mn,-1,1,resid=4
+86,HC21,NA,NA, ,NA,NA,0,0,,0,0,hc1trbfalbck,-1,1,resid=4
+87,HC21,NA,NA, ,NA,NA,0,0,,0,0,hc1trbfalbck,-1,1,resid=4
+88,HC21,NA,NA, ,NA,NA,0,0,,0,0,hc1trbfalbck,-1,1,resid=4
+89,HC21,NA,NA, ,NA,NA,0,0,,0,0,hc1trbfalbck,-1,1,resid=4
+90,HC21,NA,NA, ,NA,NA,0,0,,0,0,hc1trbfalbck,-1,1,resid=4
+91,HC21,NA,NA, ,NA,NA,0,0,,0,0,hc1trbfalbck,-1,1,resid=4
+92,HC22,NA,NA, ,NA,NA,0,0,,0,0,hc1sleepmed,-1,1,resid=4
+93,HC22,NA,NA, ,NA,NA,0,0,,0,0,hc1sleepmed,-1,1,resid=4
+94,HC22,NA,NA, ,NA,NA,0,0,,0,0,hc1sleepmed,-1,1,resid=4
+95,HC22,NA,NA, ,NA,NA,0,0,,0,0,hc1sleepmed,-1,1,resid=4
+96,HC22,NA,NA, ,NA,NA,0,0,,0,0,hc1sleepmed,-1,1,resid=4

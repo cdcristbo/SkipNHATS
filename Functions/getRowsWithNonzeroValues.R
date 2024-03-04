@@ -25,6 +25,9 @@ getRowsWithNonzeroValues <- function(data, targetColumn) {
   rows_with_nonzero <- which(contingency_matrix[, "-1"] != 0)
   rows_string <- paste(rows_with_nonzero, collapse = ", ")
   
+  column_name <- colnames(contingency_matrix)[which(contingency_matrix[4,] != 0)]
+  indicatorByResIDstring<- paste(column_name, collapse = ", ")
+  
   # Subset the matrix to rows with non-zero sums
   subset_matrix <- contingency_matrix[rows_with_nonzero, -which(colnames(contingency_matrix) == "-1")]
   
@@ -40,7 +43,8 @@ getRowsWithNonzeroValues <- function(data, targetColumn) {
   # Create a dataframe with the variable and the values
   result_df <- data.frame(
     variable = targetColumn,
-    round1Inaplicable = rows_string
+    round1Inaplicable = rows_string,
+    indicatorByResIDValue = indicatorByResIDstring
   )
   
   # Add a column indicating if there are other non-zero rows

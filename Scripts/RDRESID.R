@@ -32,6 +32,7 @@ result_df <- data.frame(variable = character(0), round1Inaplicable = character(0
 for (file in file_list) {
   # Read the dataset
   data <- read_dta(file_list)
+    #data <- read_dta(file_list)
   
   # Extract relevant columns from the dataset
   HCAll = data %>% 
@@ -50,6 +51,7 @@ for (file in file_list) {
   # Get the names of the columns starting with "hc"
   hc_columns <- grep("^hc", names(HC), value = TRUE)
   
+  
   # Iterate through each hc_column
   for (col in hc_columns) {
     tryCatch({
@@ -60,14 +62,19 @@ for (file in file_list) {
     })
   }
 }
+View(result_df2)
 
 # Process and clean the result dataframe
 result_df2 <- result_df %>% 
   select(-c(re, OtherSkip)) %>% 
+  mutate(indicatorByResID = ifelse(indicatorByResIDValue=="-1", 1, 0)) %>%
   mutate(round = as.integer(gsub("hc(\\d+).*", "\\1", variable))) %>% 
   mutate(label = sub("hc\\d+", "", variable)) %>%
   select(-variable) %>% 
   filter(round==1)
+
+#save(result_df2, file = paste0(base_path, "outcomes/results_dfV02.RData"))
+
 
 # Reshape the dataframe using spread function
 spread_df <- spread(result_df2 %>% select(-OtherSkip2), key = round, value = round1Inaplicable)
