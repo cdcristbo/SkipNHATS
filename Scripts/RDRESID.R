@@ -69,7 +69,7 @@ result_df <- result_df %>%
   mutate(label = sub("hc\\d+", "", variable)) %>%
   select(-variable) %>% 
   filter(round==1)
-View(result_df2)
+
 
 #save(result_df, file = paste0(base_path, "outcomes/Rdresid.RData"))
 

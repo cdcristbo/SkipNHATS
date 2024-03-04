@@ -5,7 +5,6 @@ library(readxl)
 library(openxlsx)
 library(tidyverse)
 
-
 # Set common base path
 base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
 fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
@@ -74,23 +73,41 @@ FinalPresentHC = patternData %>%
     1
   ),
   skippedbyBoth = ifelse(is.na(pattern),2,skippedbyBoth) ) %>%
-  left_join(box %>% 
-              rename(boxText = `tblQuestionText-QuestionText - EN`,
-                     Questionnaire.ITEM = `tblItem-ItemTag`)) %>% 
-  # select(-c(id,nameSkip,countpat,name1,name2,fldSectionID,`tblItem-Numb`,
-  #           `tblQuestionText-QuestionText - EN`,`tblQuestionText-QuestionText - ES`,
-  #           fldResponseSchemeName,group_index,`Variable name`,`Variable label`,`1.x`)) %>% 
-  # rename(Resid1Inaplicable= `1.y`) %>%
- # select(-name_if) %>%
- # distinct()  %>%
-  #mutate(indicatorResid = ifelse(Resid1Inaplicable=="1, 2",1,0)   ) %>% 
-  #mutate(  Indicator2 =ifelse(is.na(Indicator2),0,Indicator2)   ) %>%
   mutate(Indicator2 = case_when(skippedResid==1 & skippedbyBoth==0 ~ 0,
                                 skippedResid==1 & skippedbyBoth==1 ~ 1,
                                 skippedResid==1 & skippedbyBoth==2 ~ 1,
                                 skippedResid==0 & skippedbyBoth==1 ~ 1,
                                 skippedResid==0 & skippedbyBoth==2 ~ 0,  
                                 skippedResid==0 & skippedbyBoth==0 ~ 0)  ) %>%
+  select(c("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponseID","pattern","OtherSkip2",
+           "indicatorByResIDValue","skipPrior","indicatorByResID","minus1Target",
+    "skippedResid","skippedbyBoth","Indicator2")) %>% 
+  mutate(pattern = str_replace(pattern, "=\\d+$", ""),
+         pattern = ifelse(!is.na(skipPrior),paste0(pattern,"=",skipPrior),NA),
+         textResID = ifelse(!is.na(indicatorByResID),"resid=4",NA),
+         text = case_when(is.na(textResID) &  is.na(pattern) ~ NA,
+                          is.na(textResID) &  !is.na(pattern) ~ pattern,
+                          !is.na(textResID) &  is.na(pattern) ~ textResID,
+                          !is.na(textResID) &  !is.na(pattern) ~ paste0(textResID," or ",pattern)
+           )) %>% 
+  select(-c(textResID,pattern)) %>% 
+  ungroup() %>% 
+  group_by(Questionnaire.ITEM) %>% 
+  distinct() %>% 
+  mutate(fldResponsesID = paste(fldResponseID, collapse = ",")) %>% 
+  ungroup() %>% 
+  select(-fldResponseID) %>% 
+  distinct() %>% 
+    select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","OtherSkip2","indicatorByResIDValue","skipPrior","text")
+
+ 
+  
+  
+  names(FinalPresentHC)
+  
+  
+  
+  
 # until here works
     left_join(results_box %>% 
               rename(Questionnaire.ITEM = variable)) %>% 

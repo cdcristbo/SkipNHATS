@@ -1,3 +1,17 @@
+library(dplyr)
+library(haven)
+library(readxl)
+library(stringr)
+# Specify the path to your Excel file
+
+# Set common base path
+base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
+
+# Read the necessary Excel files
+Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
+fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
+trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
+
 # Extract relevant columns from 'fullList'
 processData <- function(Part2, fullList, trueNames) {
   # Extract relevant columns from 'fullList'
