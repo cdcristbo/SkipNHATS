@@ -1,0 +1,61 @@
+x,fldSectionID,Questionnaire.ITEM,Variable.name,fldResponsesID,indicatorByResID,skipbyResID,skipbyResIDPattern,text
+1,HC,HC1PRE,NA,NA,NA,NA,NA,Not on File
+2,HC,HC1,hc1health,"1,2,3,4,5",0,1,1,resid=4
+3,HC,HC2A,hc1disescn1,"1,2",0,1,1,resid=4
+4,HC,HC2B,hc1disescn2,"1,2",0,1,1,resid=4
+5,HC,HC2C,hc1disescn3,"1,2",0,1,1,resid=4
+6,HC,HC2D,hc1disescn4,"1,2",0,1,1,resid=4
+7,HC,HC2E,hc1disescn5,"1,2",0,1,1,resid=4
+8,HC,HC2F,hc1disescn6,"1,2",0,1,1,resid=4
+9,HC,HC2G,hc1disescn7,"1,2",0,1,1,resid=4
+10,HC,HC2H,hc1disescn8,"1,2",0,1,1,resid=4
+11,HC,HC2I,hc1disescn9,"1,2",0,1,1,resid=4
+12,HC,HC2J,hc1disescn10,"1,2",0,1,1,resid=4
+13,HC,BOX HC3,NA,NA,NA,NA,NA,Not on File
+14,HC,HC3_1,hc1cancerty1,"1,2,3,4,91",1,1,1,resid=4
+15,HC,HC3_2,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+16,HC,HC3_3,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+17,HC,HC3_4,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+18,HC,HC3_5,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+19,HC,HC3_6,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+20,HC,HC3_7,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+21,HC,HC3_8,NA,"1,2,3,4,91",NA,NA,NA,Not on File
+22,HC,HC3B,NA,NA,NA,NA,NA,Not on File
+23,HC,BOX HC4,NA,NA,NA,NA,NA,Not on File
+24,HC,HC4,hc1dementage,NA,1,1,1,resid=4
+25,HC,HC5_1,hc1brokebon1,"1,2",0,1,1,resid=4
+26,HC,HC5_2,hc1brokebon2,"1,2",0,1,1,resid=4
+27,HC,HC6,hc1serdisill,"1,2",0,1,1,resid=4
+28,HC,HC6,hc1serdisill,"1,2",0,1,1,resid=4
+29,HC,HC6A,NA,NA,NA,NA,NA,Not on File
+30,HC,HC7,hc1hosptstay,"1,2",0,1,1,resid=4
+31,HC,HC7,hc1hosptstay,"1,2",0,1,1,resid=4
+32,HC,HC8,hc1hosovrnht,NA,1,1,0,"resid=4 or HC7=-8,-7,2"
+33,HC,HC9PRE,NA,NA,NA,NA,NA,Not on File
+34,HC,HC9A,hc1kneesurg,"1,2",0,1,1,resid=4
+35,HC,HC9B,hc1knesrgyr,"1,2",1,1,0,"resid=4 or HC9A=-8,2"
+36,HC,HC9C,hc1ageknesur,NA,1,1,0,"resid=4 or HC9A=2,HC9B=-8,1"
+37,HC,HC10A,hc1hipsurg,"1,2",0,1,1,resid=4
+38,HC,HC10B,hc1hipsrgyr,"1,2",1,1,0,"resid=4 or HC10A=-8,2"
+39,HC,HC10C,hc1agehipsur,NA,1,1,0,"resid=4 or HC10A=2,HC10B=-8,1"
+40,HC,HC11A,hc1catarsurg,"1,2",0,1,1,resid=4
+41,HC,HC11B,hc1catrsrgyr,"1,2",1,1,0,"resid=4 or HC11A=-8,2"
+42,HC,HC11C,hc1agecatsur,NA,1,1,0,"resid=4 or HC11A=2,HC11B=-8,1"
+43,HC,HC12A,hc1bckspnsur,"1,2",0,1,1,resid=4
+44,HC,HC12B,hc1backsrgyr,"1,2",1,1,0,"resid=4 or HC12A=-8,2"
+45,HC,HC12C,hc1agebcksrg,NA,1,1,0,"resid=4 or HC12A=2,HC12B=-1,1"
+46,HC,HC13A,hc1heartsurg,"1,2",0,1,1,resid=4
+47,HC,HC13B,hc1hartsrgyr,"1,2",1,1,0,"resid=4 or HC13A=-8,2"
+48,HC,HC13C,hc1agehrtsrg,NA,1,1,0,"resid=4 or HC13A=2,HC13B=-8,1"
+49,HC,HC14PRE,NA,NA,NA,NA,NA,Not on File
+50,HC,HC14,hc1fllsinmth,"1,2",0,1,1,resid=4
+51,HC,HC15,hc1worryfall,"1,2",0,1,1,resid=4
+52,HC,HC16,hc1worrylimt,"1,2",1,1,0,"resid=4 or HC15=-8,2"
+53,HC,BOX HC17,NA,NA,NA,NA,NA,Not on File
+54,HC,HC17,hc1faleninyr,"1,2",1,1,1,resid=4
+55,HC,HC18,hc1multifall,"1,2",1,1,0,"resid=4 or HC17=-8,-7,2"
+56,HC,HC19,NA,"1,2,3,4",NA,NA,NA,Not on File
+57,HC,HC20PRE,NA,NA,NA,NA,NA,Not on File
+58,HC,HC20,hc1aslep30mn,"1,2,3,4,5",0,1,1,resid=4
+59,HC,HC21,hc1trbfalbck,"1,2,3,4,5,7",0,1,1,resid=4
+60,HC,HC22,hc1sleepmed,"1,2,3,4,5",0,1,1,resid=4

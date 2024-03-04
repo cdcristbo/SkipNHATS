@@ -21,6 +21,10 @@ folder_path <- paste0(base_path, "datasets/SP")
 source(getRowsWithNonzeroValues)
 
 # Get a list of all .dta files in the folder
+
+file_listSen = paste0(base_path,"datasets/sensitiveSP/NHATS_Round_2_SP_Sen_Dem_Supp_File.dta")
+
+
 file_list <- list.files(path = folder_path, pattern = ".dta", full.names = TRUE)
 file_list = file_list[1]
 
@@ -31,6 +35,9 @@ result_df <- data.frame(variable = character(0), round1Inaplicable = character(0
 for (file in file_list) {
   # Read the dataset
   data <- read_dta(file_list)
+  dataSen = read_dta(file_listSen)
+  data = data %>% 
+    left_join(dataSen)
     #data <- read_dta(file_list)
   
   # Extract relevant columns from the dataset

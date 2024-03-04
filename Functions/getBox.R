@@ -3,7 +3,7 @@ library(tidyr)
 base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/workNhats/"
 load(paste0(base_path, "outcomes/FinalPresent.RData"))
 
-patternData <- FinalPresent %>%
+patternDataB <- FinalPresent %>%
     filter(grepl("BOX", Questionnaire.ITEM)) #%>%
     #filter(Questionnaire.ITEM == "BOX HC4")
 # if patternData$id_go is greater than patternData$id_final, then the pattern is a skip pattern is the following:
@@ -69,13 +69,40 @@ getBox <- function(data, patternData, targetColumn) {
 }
 
 # Assuming you have a dataset called 'data' and 'patternData' as mentioned in the code
-View(patternData2)
+#View(patternData2)
+
+
 result <- getBox(data, patternData, targetColumn = "BOX HC4")
+
 results_box3 = results_box
 results_box = NULL
-for (i in 1:3) {
-   targetColumn = patternData$Questionnaire.ITEM[i]  
-   patternData2 = patternData %>% 
+names(patternDataBox)
+
+pastego = patternData %>%  
+  #filter(grepl("HC3", Questionnaire.ITEM)) %>% 
+  select(c(Questionnaire.ITEM, Variable.name,id)) %>% 
+  distinct() %>% 
+  mutate(go_col = str_extract(Questionnaire.ITEM, "^[^_]*"))
+
+pastefinal = patternData %>%  
+  #filter(grepl("HC3", Questionnaire.ITEM)) %>% 
+  select(c(Questionnaire.ITEM, Variable.name,id)) %>% 
+  distinct() %>% 
+  mutate(final_col = str_extract(Questionnaire.ITEM, "^[^_]*"))
+
+patternDataBox = patternDataB %>% 
+  select(c("Questionnaire.ITEM","id","fldSectionID","tblItem-Numb","if_col",
+         "if_col1","if_col2","go_col","final_col" )) %>% 
+  select(-id) %>% 
+  left_join(pastego,by = "go_col" ) %>% 
+  left_join(pastefinal,by = "final_col" ) 
+  
+
+
+
+for (i in 1:11) {
+   targetColumn = patternDataBox$Questionnaire.ITEM[i]  
+   patternData2 = patternDataBox %>% 
       filter(Questionnaire.ITEM == targetColumn)
     resultsbox <- getBox(data, patternData2, targetColumn)
     results_box <- rbind(results_box, resultsbox )

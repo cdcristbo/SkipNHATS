@@ -16,22 +16,22 @@ processData <- paste0(base_path, "Functions/processData.R")
 source(processData)
 patternData = processData(Part2, fullList, trueNames)
 
-trueNames2 <- result_df %>% 
-mutate(label = paste0("hc1",label)) %>%
-              rename('Variable name' = label) %>%
-              left_join(trueNames %>% 
-                          select(`Variable name`,`Questionnaire ITEM`)) %>%
-                          select(`Variable name`,`Questionnaire ITEM`,indicatorByResIDValue,indicatorByResID) 
+# trueNames2 <- result_df %>% 
+# mutate(label = paste0("hc1",label)) %>%
+#               rename('Variable name' = label) %>%
+#               left_join(trueNames %>% 
+#                           select(`Variable name`,`Questionnaire ITEM`)) %>%
+#                           select(`Variable name`,`Questionnaire ITEM`,indicatorByResIDValue,indicatorByResID) 
+# 
+# 
+# box = fullList %>% 
+#   distinct(`tblItem-ItemTag`,`tblQuestionText-QuestionText - EN`) %>% 
+#   filter(str_detect(`tblItem-ItemTag`, "BOX"))
 
+# a = load(paste0(base_path, "outcomes/FinalPresent.RData"))
+# b = load(paste0(base_path, "outcomes/combined_results.RData"))
 
-box = fullList %>% 
-  distinct(`tblItem-ItemTag`,`tblQuestionText-QuestionText - EN`) %>% 
-  filter(str_detect(`tblItem-ItemTag`, "BOX"))
-
-a = load(paste0(base_path, "outcomes/FinalPresent.RData"))
-b = load(paste0(base_path, "outcomes/combined_results.RData"))
-
-combined_resultsHC_round1 = load(paste0(base_path, "outcomes/combined_results.Rdata"))
+# combined_resultsHC_round1 = load(paste0(base_path, "outcomes/combined_results.Rdata"))
 #combined_resultsHC_round1 <- read_csv("combined_resultsHC_round1.csv")
 #save(results_df,file = "results_df.RData")
 #load("results_df.RData")
@@ -89,7 +89,8 @@ FinalPresentHC = patternData %>%
                           is.na(textResID) &  !is.na(pattern) ~ pattern,
                           !is.na(textResID) &  is.na(pattern) ~ textResID,
                           !is.na(textResID) &  !is.na(pattern) ~ paste0(textResID," or ",pattern)
-           )) %>% 
+           ),
+         text = ifelse(is.na(text),"FileNotinSP",text)) %>% 
   select(-c(textResID,pattern)) %>% 
   ungroup() %>% 
   group_by(Questionnaire.ITEM) %>% 
@@ -98,15 +99,24 @@ FinalPresentHC = patternData %>%
   ungroup() %>% 
   select(-fldResponseID) %>% 
   distinct() %>% 
-    select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","OtherSkip2","indicatorByResIDValue","skipPrior","text")
+    select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","OtherSkip2","indicatorByResIDValue","skipPrior","text") %>% 
+  mutate(skipbyuniplicable = case_when(is.na(OtherSkip2) ~ NA,
+                                   OtherSkip2 == " " ~ 0,
+                                   !is.na(OtherSkip2) ~ 1),
+         skipbyResIDValue = case_when(indicatorByResIDValue=="-1"~1,
+                                      is.na(indicatorByResIDValue)~NA,
+                                      indicatorByResIDValue!="-1"~0),
+         skipbyResIDPattern = case_when( is.na(skipbyuniplicable) & is.na(skipPrior) ~ NA,
+                                         skipbyuniplicable==0 & !is.na(skipPrior)~0,
+                                         skipbyuniplicable==1 & !is.na(skipPrior) ~0,
+                                         skipbyuniplicable==1 & is.na(skipPrior)~1)) %>% 
+  select(-c("OtherSkip2","indicatorByResIDValue","skipPrior")) %>% 
+  select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID",    
+         "skipbyuniplicable","skipbyResIDValue","skipbyResIDPattern","text")
 
- 
-  
-  
-  names(FinalPresentHC)
-  
-  
-  
+# write.csv(FinalPresentHC,file = paste0(base_path, "outcomes/BaseWoCleanv02.csv")) 
+# write.csv(FinalPresentHC,file = paste0(base_path, "outcomes/BaseClean.csv")) 
+
   
 # until here works
     left_join(results_box %>% 
@@ -135,23 +145,3 @@ View(FinalPresentHC)
 #write.csv(FinalPresentHC,file = "FinalPresentHCStudy.csv")
 FinalPresentHC
 
-boxExample = data %>% 
-  distinct(spid,r1dresid,hc1fllsinmth,hc1faleninyr,hc1multifall) %>% 
-  #group_by(r1dresid,hc1fllsinmth,hc1faleninyr,hc1multifall) %>% 
-  group_by(hc1fllsinmth,hc1faleninyr,hc1multifall) %>% 
-  summarise(freq = n()) %>% 
-  mutate(patternbox = ifelse(hc1fllsinmth==1&hc1faleninyr!= -1 ,1,0),
-         skip = ifelse(sum(patternbox)>0,1,0))
-
-View(boxExample)
-data.frame(table(data$hc1fllsinmth,data$hc1faleninyr)) 
-
-table(data$hc1dementage,data$hc1disescn9)
-
-boxExample = data %>% 
-  distinct(spid,r1dresid,hc1fllsinmth,hc1faleninyr,hc1multifall) %>% 
-  #group_by(r1dresid,hc1fllsinmth,hc1faleninyr,hc1multifall) %>% 
-  group_by(hc1fllsinmth,hc1faleninyr,hc1multifall) %>% 
-  summarise(freq = n()) %>% 
-  mutate(patternbox = ifelse(hc1fllsinmth==1&hc1faleninyr!= -1 ,1,0),
-         skip = ifelse(sum(patternbox)>0,1,0))
