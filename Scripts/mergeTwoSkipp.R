@@ -108,11 +108,15 @@ FinalPresentHC = patternData %>%
                                       indicatorByResIDValue!="-1"~0),
          skipbyResIDPattern = case_when( is.na(skipbyuniplicable) & is.na(skipPrior) ~ NA,
                                          skipbyuniplicable==0 & !is.na(skipPrior)~0,
+                                         skipbyuniplicable==0 & is.na(skipPrior)~0,
                                          skipbyuniplicable==1 & !is.na(skipPrior) ~0,
                                          skipbyuniplicable==1 & is.na(skipPrior)~1)) %>% 
   select(-c("OtherSkip2","indicatorByResIDValue","skipPrior")) %>% 
   select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID",    
-         "skipbyuniplicable","skipbyResIDValue","skipbyResIDPattern","text")
+         "skipbyuniplicable","skipbyResIDValue","skipbyResIDPattern","text") %>% 
+  rename(indicatorByResID = "skipbyuniplicable",
+         skipbyResID = "skipbyResIDValue",
+         skipbyResIDPattern = "skipbyResIDPattern")
 
 # write.csv(FinalPresentHC,file = paste0(base_path, "outcomes/BaseWoCleanv02.csv")) 
 # write.csv(FinalPresentHC,file = paste0(base_path, "outcomes/BaseClean.csv")) 

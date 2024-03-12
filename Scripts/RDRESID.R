@@ -3,6 +3,7 @@ library(dplyr)
 library(haven)
 library(tidyr)
 library(readxl)
+library(sas7bdat)
 library(stringr)
 # Specify the path to your Excel file
 base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
@@ -22,7 +23,7 @@ source(getRowsWithNonzeroValues)
 
 # Get a list of all .dta files in the folder
 
-file_listSen = paste0(base_path,"datasets/sensitiveSP/NHATS_Round_2_SP_Sen_Dem_Supp_File.dta")
+file_listSen = paste0(base_path,"datasets/sensitiveSP/r1/NHATS_Round_1_SP_Sen_Dem_File.sas7bdat")
 
 
 file_list <- list.files(path = folder_path, pattern = ".dta", full.names = TRUE)
@@ -34,9 +35,11 @@ result_df <- data.frame(variable = character(0), round1Inaplicable = character(0
 # Iterate through each dataset file
 for (file in file_list) {
   # Read the dataset
-  data <- read_dta(file_list)
-  dataSen = read_dta(file_listSen)
-  data = data %>% 
+  data <- read_dta(file)
+  
+  dataSen = read.sas7bdat(file_listSen)
+
+    data = data %>% 
     left_join(dataSen)
     #data <- read_dta(file_list)
   
@@ -132,3 +135,8 @@ result_df <- result_df %>%
 # 
 # # setdiff(subset_result$`Questionnaire ITEM`,unique(finalVer$`Questionnaire ITEM`) )
 # # setdiff(unique(finalVer$`Questionnaire ITEM`),subset_result$`Questionnaire ITEM`)
+# Define the file path
+file_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/datasets/sensitiveSP/r1/NHATS_Round_1_SP_Sen_Dem_File.sas7bdat"
+
+# Read the SAS file
+datasensi <- read.sas7bdat(file_path)
