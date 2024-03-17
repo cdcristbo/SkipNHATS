@@ -4,8 +4,10 @@ base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/
 load(paste0(base_path, "outcomes/FinalPresent.RData"))
 
 patternDataB <- patternData %>%
-    filter(grepl("BOX", Questionnaire.ITEM)) #%>%
-    #filter(Questionnaire.ITEM == "BOX HC4")
+    filter(grepl("BOX", Questionnaire.ITEM)) %>%
+    select(-c(item1,name1,pattern)) %>% 
+  distinct()
+  #filter(Questionnaire.ITEM == "BOX HC4")
 
 patternDataB$if_col <- str_extract(patternDataB$`tblQuestionText-QuestionText - EN`, "(?<=If ).*?(?= =)")
 patternDataB$go_col <- str_extract(patternDataB$`tblQuestionText-QuestionText - EN`, "(?<=go to ).*?(?=\\.)")
@@ -64,8 +66,13 @@ for (i in 1:nrow(patternDataBox)) {
   #print(resultsbox)
 }
 #write.csv(results_box,file = paste0(base_path, "outcomes/Boxes.csv")) 
+results_box2 = results_box %>% 
+  mutate(textBox = paste0(name1 , "=",case),
+         target = ifelse(case==1,name3,name2))
+
 
 getBox(data, patternData, targetColumn = "BOX HC14")
+resultsbox <- getBox(data, patternData2, targetColumn)
 
 getBox <- function(data, patternData, targetColumn) {
 
@@ -101,7 +108,8 @@ getBox <- function(data, patternData, targetColumn) {
             name1 = patternData$if_col,
             name2 = patternData$go_col,
             name3 = patternData$final_col,
-            case =  1
+            case =  1,
+            text = patternData$`tblQuestionText-QuestionText - EN`
         )
         
         return(returnBox)
@@ -122,7 +130,8 @@ getBox <- function(data, patternData, targetColumn) {
             name1 = patternData$if_col,
             name2 = patternData$go_col,
             name3 = patternData$final_col,
-            case = 2
+            case = 2,
+            text = patternData$`tblQuestionText-QuestionText - EN`
         )
         
         return(returnBox)
