@@ -5,6 +5,8 @@ library(openxlsx)
 library(readxl)
 library(openxlsx)
 library(tidyverse)
+library(xlsx)
+library(openxlsx)
 
 # Set common base path
 base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
@@ -17,7 +19,7 @@ Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRo
 # Load saved data
 load(paste0(base_path, "outcomes/Rdresid.RData")) # result_df
 load(paste0(base_path, "outcomes/SkipPattern.RData")) # results_df
-
+load(paste0(base_path, "outcomes/results_box.RData"))
 # Load custom function
 processData <- paste0(base_path, "Functions/processData.R")
 source(processData)
@@ -47,6 +49,7 @@ FinalPresentHC <- patternData %>%
               mutate(firstskipPattern = paste0("hc1", label)) %>% 
               select(-label) %>% 
               rename(Variable.name = firstskipPattern)) %>% 
+  mutate(pattern = str_replace_all(pattern, ",", " or ")) %>% 
   mutate(skipPrior = gsub(",\\s*-1", "", skipPrior)) %>%
   mutate(skippedResid = ifelse(OtherSkip2 == "1, 2", 1, 0),
          skippedbyBoth = ifelse(
@@ -75,8 +78,7 @@ FinalPresentHC <- patternData %>%
            is.na(textResID) & is.na(pattern) ~ NA,
            is.na(textResID) & !is.na(pattern) ~ pattern,
            !is.na(textResID) & is.na(pattern) ~ textResID,
-           !is.na(textResID) & !is.na(pattern) ~ paste0(textResID, " or ", pattern)
-         ),
+           !is.na(textResID) & !is.na(pattern) ~ paste0(textResID, " or ", pattern)),
          text = ifelse(is.na(text), "FileNotinSP", text)) %>% 
   select(-c(textResID, pattern)) %>% 
   ungroup() %>% 
@@ -109,6 +111,11 @@ FinalPresentHC <- patternData %>%
          "skipbyResIDValue","skipbyuniplicable", "skipbyResIDPattern", "text") %>% 
   rename(AdditionalSkipByResID = "skipbyuniplicable",
          skipbyResID = "skipbyResIDValue",
-         skipbyResIDPattern = "skipbyResIDPattern")
-
-
+         skipbyResIDPattern = "skipbyResIDPattern") %>% 
+  left_join(results_box %>% 
+              select(Questionnaire.ITEM ,simpleBoxSkip,textBox )) %>% 
+  mutate(text = ifelse(is.na(textBox),text,paste0(text," or ",textBox)) ,
+         simpleBoxSkip =ifelse(is.na(simpleBoxSkip),skipbyResIDPattern,0)) %>% 
+  select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","skipbyResID","AdditionalSkipByResID","skipbyResIDPattern","simpleBoxSkip","text")
+  
+write.xlsx(FinalPresentHC, file = paste0(base_path, "outcomes/BaseWoCleanv03.xlsx"))

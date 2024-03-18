@@ -54,8 +54,6 @@ patternDataBox = patternDataB %>%
 # 3. return a dataframe valled returnBox with the variable and the values variable = targetColumn and boxVal = stringbox
 
 # Function to create a dataframe with variables and values based on skip patterns
-patternData = patternDataBox[10,]
-targetColumn="BOX HC14"
 results_box = NULL
 
 for (i in 1:nrow(patternDataBox)) {
@@ -66,13 +64,17 @@ for (i in 1:nrow(patternDataBox)) {
   #print(resultsbox)
 }
 #write.csv(results_box,file = paste0(base_path, "outcomes/Boxes.csv")) 
-results_box2 = results_box %>% 
+results_box = results_box %>% 
   mutate(textBox = paste0(name1 , "=",case),
-         target = ifelse(case==1,name3,name2))
+         "Questionnaire.ITEM" = ifelse(case==1,name3,name2),
+         simpleBoxSkip = 0) %>% 
+  select(-c(name2,name3)) %>% 
+  distinct()
+  
 
 
-getBox(data, patternData, targetColumn = "BOX HC14")
-resultsbox <- getBox(data, patternData2, targetColumn)
+save(results_box, file = paste0(base_path, "outcomes/results_box.RData"))
+
 
 getBox <- function(data, patternData, targetColumn) {
 

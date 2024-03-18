@@ -12,7 +12,7 @@ processData <- function(Part2, fullList, trueNames) {
   items <- complete %>%
     #filter(fldSectionID != "IS") %>%
     left_join(Part2) %>%
-    #filter(fldSectionID == "HC") %>%
+    filter(fldSectionID == "HC") %>%
     left_join(trueNames %>%
                 rename(fldItemID = `Questionnaire ITEM`) %>%
                 distinct()) %>%
@@ -23,7 +23,7 @@ processData <- function(Part2, fullList, trueNames) {
     rename(`Questionnaire ITEM` = fldItemID,
            id = `tblItem-Numb`) %>% 
     arrange(id) %>% 
-    #filter(str_detect(`Questionnaire ITEM`, "HC")) %>% 
+    filter(str_detect(`Questionnaire ITEM`, "HC")) %>% 
     #filter(`Questionnaire ITEM` != "HC3") %>% 
     select(c("Questionnaire ITEM", "id", "fldResponseID", "fldSkipTo", "Variable name"))
 
