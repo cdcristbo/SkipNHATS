@@ -3,7 +3,7 @@ getRowsGroup2 <- function(data, patternData, targetColumn, skipVariable) {
   
   # Extract relevant information from the patternData
   info <- patternData %>% 
-    filter(Variable.name == targetColumn & name2 == skipVariable) %>% 
+    #filter(Variable.name == targetColumn & name2 == skipVariable) %>% 
     mutate(numberskip1 = as.numeric(str_extract(item1, "(?<=\\=)\\d+"))) %>%
     mutate(numberskip2 = as.numeric(str_extract(item2, "(?<=\\=)\\d+"))) %>%
     distinct(Variable.name, Questionnaire.ITEM, item1, name1, item2, name2, pattern, numberskip1, numberskip2)
@@ -37,15 +37,17 @@ getRowsGroup2 <- function(data, patternData, targetColumn, skipVariable) {
       # Filter data2 based on the last value in info$name2
       contingency_table3 <- data2 %>%
         filter(r != 4) %>% 
-        filter(if_all(all_of(filter_column), ~. != info$numberskip1))
-      
-    } else if (integer_value > 1) {
+        filter(if_all(all_of(filter_column), ~. != info$numberskip1) ) %>% 
+        filter(if_all(all_of(filter_column), ~. != -8) )
+    
+      } else if (integer_value > 1) {
       filter_column <- as.character(tail(info$name2, 1))
       
       # Filter data2 based on the last value in info$name2
       contingency_table3 <- data2 %>%
         filter(!(r %in% c(6, 8))) %>% 
-        filter(if_all(all_of(filter_column), ~. != info$numberskip2))
+        filter(if_all(all_of(filter_column), ~. != info$numberskip2)) %>% 
+        filter(if_all(all_of(filter_column), ~. != -8) )
     }
     
     # Create a contingency table for skipVariable and targetColumn

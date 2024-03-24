@@ -54,8 +54,8 @@ FinalPresentHC <- patternData %>%
   mutate(skippedResid = ifelse(OtherSkip2 == "1, 2", 1, 0),
          skippedbyBoth = ifelse(
            is.na(skipPrior) | 
-           grepl("-8|-7|=(\\d+)", skipPrior) | 
-           grepl("=(\\d+)", pattern),
+             grepl("-8|-7|=(\\d+)", skipPrior) | 
+             grepl("=(\\d+)", pattern),
            0,
            1
          ),
@@ -117,5 +117,5 @@ FinalPresentHC <- patternData %>%
   mutate(text = ifelse(is.na(textBox),text,paste0(text," or ",textBox)) ,
          simpleBoxSkip =ifelse(is.na(simpleBoxSkip),skipbyResIDPattern,0)) %>% 
   select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","skipbyResID","AdditionalSkipByResID","skipbyResIDPattern","simpleBoxSkip","text")
-  
+
 write.xlsx(FinalPresentHC, file = paste0(base_path, "outcomes/BaseWoCleanv03.xlsx"))

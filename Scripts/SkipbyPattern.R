@@ -1,6 +1,7 @@
 # Load necessary libraries
 library(dplyr)
 library(haven)
+library(readr)
 library(readxl)
 library(stringr)
 # Specify the path to your Excel file
@@ -11,8 +12,8 @@ base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/
 # Read the necessary Excel files
 Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
 fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
-trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
-
+#trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
+trueNames = read_csv("C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.csv")
 #A=load(paste0(base_path, "outcomes/FinalPresent.RData"))
 getRowsGroup1 <- paste0(base_path, "Functions/getRowsGroup1.R")
 getRowsGroup2 <- paste0(base_path, "Functions/getRowsGroup2.R")
@@ -48,6 +49,7 @@ for (i in seq_len(nrow(patternData))) {
     targetColumn <- patternData[i, "Variable.name"]
     skipVariable <- patternData[i, "name1"]
     pattern <- patternData[i, "pattern"]
+    # patternData <- patternData[i, ]
     
     # Check conditions to decide which function to apply
     if (!is.na(pattern) && !grepl(",", pattern)) {
@@ -74,4 +76,4 @@ for (i in seq_len(nrow(patternData))) {
   }
 
 #write.csv(results_df, file = paste0(base_path, "outcomes/delete.csv"), append = FALSE, quote = TRUE, sep = " ")
-#save(results_df, file = paste0(base_path, "outcomes/SkipPattern.RData"))
+save(results_df, file = paste0(base_path, "outcomes/SkipPattern.RData"))
