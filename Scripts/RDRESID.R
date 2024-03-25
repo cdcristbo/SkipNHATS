@@ -39,11 +39,12 @@ for (file in file_list) {
   
   # Merge the dataset with the sensitive data
   data <- data %>% 
-    left_join(dataSen)
+    left_join(dataSen) %>% 
+    select(-is1dproxyid)
   
   # Extract relevant columns from the dataset
   HCAll <- data %>% 
-    select(spid, ends_with("dresid"), starts_with("hc"))
+    select(spid, ends_with("dresid"), starts_with("is"))
   
   # Extract column names with the pattern "^r\\d+dresid$"
   resid_columns <- names(HCAll)[grepl("^r\\d+dresid$", names(HCAll))]
@@ -53,10 +54,10 @@ for (file in file_list) {
   
   # Select relevant columns from the dataset (HC)
   HC <- HCAll %>% 
-    select(spid, max_value_column, starts_with("hc")) 
+    select(spid, max_value_column, starts_with("is")) 
   
   # Get the names of the columns starting with "hc"
-  hc_columns <- grep("^hc", names(HC), value = TRUE)
+  hc_columns <- grep("^is", names(HC), value = TRUE)
   
   # Iterate through each hc_column
   for (col in hc_columns) {
@@ -73,8 +74,8 @@ for (file in file_list) {
 result_df <- result_df %>%  # Assign the modified dataframe back to result_df
   select(-c(re, OtherSkip)) %>%  # Remove the columns 're' and 'OtherSkip' from the dataframe
   mutate(indicatorByResID = ifelse(indicatorByResIDValue == "-1", 1, 0)) %>%  # Create a new column 'indicatorByResID' with values 1 if 'indicatorByResIDValue' is "-1", otherwise 0
-  mutate(round = as.integer(gsub("hc(\\d+).*", "\\1", variable))) %>%  # Extract the numeric part from the 'variable' column and assign it to the new column 'round'
-  mutate(label = sub("hc\\d+", "", variable)) %>%  # Remove the 'hc' prefix and the numeric part from the 'variable' column and assign it to the new column 'label'
+  mutate(round = as.integer(gsub("is(\\d+).*", "\\1", variable))) %>%  # Extract the numeric part from the 'variable' column and assign it to the new column 'round'
+  mutate(label = sub("is\\d+", "", variable)) %>%  # Remove the 'hc' prefix and the numeric part from the 'variable' column and assign it to the new column 'label'
   select(-variable) %>%  # Remove the 'variable' column from the dataframe
   filter(round == 1)  # Keep only the rows where 'round' is equal to 1
 

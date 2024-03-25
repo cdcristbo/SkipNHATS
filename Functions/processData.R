@@ -1,176 +1,103 @@
+
+#patternData <- processData(Part2, fullList, trueNames,section="IS")
+
 # Extract relevant columns from 'fullList'
-processData <- function(Part2, fullList, trueNames) {
+processData <- function(Part2, fullList, trueNames,section) {
   # Extract relevant columns from 'fullList'
   complete <- fullList %>%
-    select("tblItem-Category_Id", "tblItem-ItemTag", "tblItem-Numb",
-           "tblQuestion-FieldRefusedSkiptoID", "tblQuestion-FieldDKSkiptoID",
-           "tblQuestionText-QuestionText - EN", "tblQuestionText-QuestionText - ES") %>%
+    select("tblItem-Category_Id", "tblItem-ItemTag", "tblItem-Numb") %>%
     rename(fldSectionID = `tblItem-Category_Id`,
            fldItemID = `tblItem-ItemTag`)
   
   # Filter and join relevant data from 'complete', 'Part2', and 'trueNames'
   items <- complete %>%
     #filter(fldSectionID != "IS") %>%
-    left_join(Part2) %>%
-    filter(fldSectionID == "HC") %>%
+    left_join(Part2 %>% 
+                select(-fldResponseSchemeName)) %>%
+    filter(fldSectionID == section) %>%
     left_join(trueNames %>%
+                select(`Variable name`,`Questionnaire ITEM`) %>% 
                 rename(fldItemID = `Questionnaire ITEM`) %>%
                 distinct()) %>%
-    select(-c("tblQuestion-FieldRefusedSkiptoID", "tblQuestion-FieldDKSkiptoID"))
-  
-  # Inapplicable part
-  itemsHC <- items %>% 
-    rename(`Questionnaire ITEM` = fldItemID,
-           id = `tblItem-Numb`) %>% 
-    arrange(id) %>% 
-    filter(str_detect(`Questionnaire ITEM`, "HC")) %>% 
-    #filter(`Questionnaire ITEM` != "HC3") %>% 
-    select(c("Questionnaire ITEM", "id", "fldResponseID", "fldSkipTo", "Variable name"))
-  
-  # Extract unique patterns and positions
-  pattern <- unique(itemsHC$fldSkipTo)
-  positions <- sapply(pattern, function(pat) {
-    which(itemsHC$`Questionnaire ITEM` == pat)[1]
-  })
-  
-  # Create data frames for patterns and positions
-  paste_df <- data.frame(cbind(pattern, position = as.numeric(positions)))[-1,]
-  paste2_df <- itemsHC %>% 
-    filter(!is.na(fldSkipTo)) %>% 
-    distinct(`Questionnaire ITEM`, fldSkipTo) %>% 
-    group_by(fldSkipTo) %>% 
-    mutate(del = seq(n())) %>% 
-    filter(del == 1) %>% 
+    mutate(textSkip = ifelse(!is.na(fldSkipTo) , paste0( fldItemID ,"=",fldResponseID), NA)) %>% 
+    select(-fldResponseID) %>% 
+    distinct()  %>% 
+    group_by(fldItemID) %>%  
+    # summarise(length(unique(`Variable name`))) #verify that the values are unique IMPORTANT!!!!!!!!!!!!!!!!!!!!
+    mutate(text2 = paste(textSkip,sep = " or ")) %>% 
+    select(-c(textSkip)) %>% 
+    mutate(index = row_number()) %>%
+    filter(index==1) %>% 
     ungroup() %>% 
-    select(-del) %>% 
-    rename(patt = `Questionnaire ITEM`) %>% 
-    rename(`Questionnaire ITEM` = fldSkipTo) %>% 
-    right_join(itemsHC) %>% 
-    arrange(id) %>% 
-    group_by(patt) %>% 
-    mutate(countpat = seq_along(patt)) %>% 
-    ungroup() %>% 
-    mutate(pattdel = case_when(is.na(patt) ~ 0,
-                               !is.na(patt) & countpat == 1 ~ 1,
-                               !is.na(patt) & countpat != 1 ~ 0)) %>% 
-    mutate(patt = ifelse(pattdel == 1, patt, NA)) %>% 
-    select(-pattdel) %>% 
-    mutate(patt = lead(patt)) %>% 
-    mutate(patt2 = ifelse(!is.na(fldSkipTo), `Questionnaire ITEM`, patt)) %>% 
-    #mutate(patt2 = ifelse(grepl("HC", patt2), patt2, NA)) %>% 
-    mutate(crossed_column = ifelse(!is.na(patt), as.character(patt), as.character(patt2))) %>% 
-    select(-c(patt, patt2))
+    mutate(postionInitial= seq(n())) %>% 
+    select(-c(`tblItem-Numb`,index))
+    
+ItemSKips = items %>% 
+  filter(text2!="NA") %>% 
+  left_join(items %>% 
+              distinct(fldItemID,postionInitial) %>% 
+              rename(postionFinal = postionInitial,
+                    fldSkipTo =  fldItemID))
+
   
-  # Merge data frames for IDs
-  idMerge <- paste2_df %>% 
-    distinct(`Questionnaire ITEM`, id) %>% 
-    rename(id2 = id,
-           crossed_column = `Questionnaire ITEM`)
+FinalItems = items %>% 
+  select(-postionInitial) %>% 
+  left_join(ItemSKips) %>% 
+  mutate(postionInitial = postionInitial+1,
+         postionFinal = postionFinal-1) %>% 
+  mutate(text2 =ifelse(text2=="NA",NA,text2))
   
-  # Merge data frames for final results
-  fin2 <- paste2_df %>% 
-    left_join(idMerge)
-  
-  # Process the grouped positions
-  df <- data.frame(position = seq_along(fin2$id2), value = fin2$id2)
-  df_filtered <- df %>% filter(!is.na(value))
-  
-  # Group the positions by their values
-  grouped_positions <- df_filtered %>% 
-    group_by(value) %>% 
-    mutate(n = n(),
-           min = min(position) + 1,
-           max = max(position) - 1) %>% 
-    ungroup() %>% 
-    filter(n != 1) %>% 
-    distinct(value, min, max)
-  
-  grouped_positions2 <- df_filtered %>% 
-    group_by(value) %>% 
-    mutate(n = n(),
-           min = min(position) + 1,
-           max = max(position) - 1) %>% 
-    ungroup() %>% 
-    mutate(id3 = lead(max)) %>% 
-    select(-max) %>% 
-    rename(max = id3) %>% 
-    filter(n == 1) %>% 
-    distinct(value, n, min, max)
-  
-  # Fill in values for grouped_positions and grouped_positions2
-  id1 <- rep(NA, nrow(fin2))
-  for (i in 1:nrow(grouped_positions)) {
-    id1[grouped_positions$min[i]:grouped_positions$max[i]] <- grouped_positions$value[i]
+
+data <- FinalItems %>%
+  mutate(
+    postionInitial = replace_na(postionInitial, -1),
+    postionFinal = replace_na(postionFinal, -1),
+    pattern = NA_character_
+   )# %>% 
+  # select(-`Variable name`) %>% 
+  # left_join(trueNames %>% 
+  #             distinct(`Questionnaire ITEM`,`Variable name`) %>% 
+  #             rename(fldItemID = `Questionnaire ITEM`))
+
+
+for (i in seq_len(nrow(data))) {
+  if (data$postionInitial[i] > 0 & data$postionFinal[i] > 0) {
+    data$pattern[data$postionInitial[i]:data$postionFinal[i]] <- data$text2[i]
   }
+}
+
+FinalPresent = data %>% 
+  rename(Questionnaire.ITEM=fldItemID) %>% 
+mutate(Variable.name = `Variable name`) %>% 
+  mutate(item1 = pattern,
+         id = seq(n()),
+         "tblItem-Numb" = id,
+         "Variable label" = Variable.name) %>% 
+  left_join(data %>% 
+              distinct(fldItemID,`Variable name`) %>% 
+              rename(fldSkipTo =fldItemID,
+                     nameSkip = `Variable name`)) %>% 
+  mutate(  name1Del = str_extract(pattern, "^[^=]*")  ) %>% 
+  left_join(data %>% 
+              distinct(fldItemID,`Variable name`) %>% 
+              rename(name1Del =fldItemID,
+                     name1 = `Variable name`)) %>% 
+  select(-c("text2","postionInitial","postionFinal","name1Del")) %>% 
+  mutate(
+    fldResponseID = NA,
+    countpat = NA,
+    item2 = NA,
+    name2 = NA,
+    `tblQuestionText-QuestionText - EN` = NA,
+    `tblQuestionText-QuestionText - ES` = NA,
+    fldResponseSchemeName = NA,
+    `SP Public File` = NA,
+    `OP Public File` = NA,
+    `Tracker File` = NA,
+    `Restricted (R) or Sensitive (S) Variable` = NA,
+    `Not on File` = NA
+  )
   
-  fin3 <- cbind(fin2, id1)
-  
-  id2 <- rep(NA, nrow(fin3))
-  for (i in 1:nrow(grouped_positions2)) {
-    id2[grouped_positions2$min[i]:grouped_positions2$max[i]] <- grouped_positions2$value[i]
-  }
-  
-  fin4 <- data.frame(cbind(fin3, id2))
-  
-  # Create 'text' column
-  fin4$text <- paste(fin4$Questionnaire.ITEM, fin4$fldResponseID, sep = "=")
-  
-  # Merge data frames for final results
-  list2 <- fin4 %>% 
-    ungroup() %>% 
-    distinct(id, text)
-  
-  final2 <- fin4 %>% 
-    left_join(list2 %>% 
-                rename(id1 = id)) %>% 
-    left_join(list2 %>% 
-                rename(id2.1 = id, text2 = text)) %>% 
-    ungroup() %>% 
-    group_by(Questionnaire.ITEM) %>% 
-    mutate(k = ifelse(all(is.na(fldSkipTo)), 0, 1)) %>% 
-    mutate(fil = as.numeric(sub(".*=(\\d+)", "\\1", text2))) %>% 
-    mutate(text2 = ifelse(k == 1 & fil == 1 & fldResponseID == 2, NA, text2)) %>% 
-    mutate(patternskip = case_when(is.na(text) & is.na(text2) ~ NA,
-                                   !is.na(text) & is.na(text2) ~ text,
-                                   !is.na(text) & !is.na(text2) ~ paste(text, text2, sep = ",")))
-  
-  # Filter skip data
-  skipdata <- fin4 %>% 
-    filter(!is.na(fldSkipTo)) %>%
-    distinct(Questionnaire.ITEM, id, fldResponseID, fldSkipTo, Variable.name) %>% 
-    mutate(item1 = paste(Questionnaire.ITEM, fldResponseID, sep = "=")) %>%
-    distinct(id, item1, Variable.name)
-  
-  # Merge data frames for final results
-  final <- fin4 %>% 
-    left_join(list2 %>% 
-                rename(id1 = id)) %>%
-    group_by(id2) %>% 
-    mutate(id3 = seq(n())) %>% 
-    mutate(merge = ifelse(row_number() == which.max(id3) & id3 > 1, 1, 0)) %>% 
-    mutate(iditem1 = ifelse(merge == 1, id2, id1)) %>% 
-    left_join(skipdata %>% 
-                rename(iditem1 = id,
-                       name1 = Variable.name)) %>% 
-    ungroup() %>% 
-    mutate(iditem2 = lag(id2.1)) %>% 
-    left_join(skipdata %>% 
-                rename(iditem2 = id,
-                       item2 = item1,
-                       name2 = Variable.name)) %>% 
-    select(-c(crossed_column, id1, id2, id2.1, text, id3, merge)) %>% 
-    mutate(pattern = ifelse(!is.na(item2), paste(item1, item2, sep = ","), item1)) %>% 
-    left_join(fin4 %>% 
-                distinct(Questionnaire.ITEM, Variable.name) %>% 
-                rename(nameSkip = Variable.name,
-                       fldSkipTo = Questionnaire.ITEM)) %>% 
-    select("Questionnaire.ITEM", "Variable.name", "id", "fldResponseID", "fldSkipTo",
-           "nameSkip", "countpat", "item1", "name1", "item2", "name2", "pattern")
-  
-  # Create the 'FinalPresent' data frame
-  FinalPresent <- final %>% 
-    left_join(items %>% 
-                rename(Questionnaire.ITEM = fldItemID))
-  
+
   return(FinalPresent)
 }

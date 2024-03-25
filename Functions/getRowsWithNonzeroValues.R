@@ -2,6 +2,10 @@
 # where '-1' has values different from zero in a contingency table
 # targetColumn = "hc1kneesurg"
 
+data = HC
+targetColumn = "is1dproxyid"
+
+
 getRowsWithNonzeroValues <- function(data, targetColumn) {
   # Convert the target column to class "double" if it's not already
   if (!is.numeric(data[[targetColumn]])) {

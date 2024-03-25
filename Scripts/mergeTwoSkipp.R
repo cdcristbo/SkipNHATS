@@ -25,11 +25,11 @@ processData <- paste0(base_path, "Functions/processData.R")
 source(processData)
 
 # Process data using custom function
-patternData <- processData(Part2, fullList, trueNames)
+patternData <- processData(Part2, fullList, trueNames,section="IS")
 
 # Remove unnecessary columns from result_df
 datsRdresid <- result_df %>% 
-  mutate(firstskipPattern = paste0("hc1", label)) %>% 
+  mutate(firstskipPattern = paste0("is1", label)) %>% 
   select(-label)
 
 # Filter out rows with missing values in pattern and Variable.name columns
@@ -38,7 +38,7 @@ patternData2 <- patternData %>%
 
 # Remove unnecessary columns from result_df
 datsRdresid <- result_df %>% 
-  mutate(firstskipPattern = paste0("hc1", label)) %>% 
+  mutate(firstskipPattern = paste0("is1", label)) %>% 
   select(-label)
 
 # Merge patternData, results_df, and result_df
@@ -46,7 +46,7 @@ FinalPresentHC <- patternData %>%
   left_join(results_df %>% 
               rename(Variable.name = variable)) %>% 
   left_join(result_df %>% 
-              mutate(firstskipPattern = paste0("hc1", label)) %>% 
+              mutate(firstskipPattern = paste0("is1", label)) %>% 
               select(-label) %>% 
               rename(Variable.name = firstskipPattern)) %>% 
   mutate(pattern = str_replace_all(pattern, ",", " or ")) %>% 
@@ -116,6 +116,47 @@ FinalPresentHC <- patternData %>%
               select(Questionnaire.ITEM ,simpleBoxSkip,textBox )) %>% 
   mutate(text = ifelse(is.na(textBox),text,paste0(text," or ",textBox)) ,
          simpleBoxSkip =ifelse(is.na(simpleBoxSkip),skipbyResIDPattern,0)) %>% 
-  select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","skipbyResID","AdditionalSkipByResID","skipbyResIDPattern","simpleBoxSkip","text")
+  select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","skipbyResID","AdditionalSkipByResID","skipbyResIDPattern","simpleBoxSkip","text") %>% 
+  mutate(AdditionalSkipByResID = ifelse(skipbyResID==0,0,AdditionalSkipByResID))
 
-write.xlsx(FinalPresentHC, file = paste0(base_path, "outcomes/BaseWoCleanv03.xlsx"))
+
+ItemPF = FinalPresentHC %>% 
+  filter(skipbyResID==1) %>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+Itembyr1dresid = FinalPresentHC %>% 
+  filter(skipbyResID ==1 & AdditionalSkipByResID ==0)%>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+Itembyr1dresidandPrior = FinalPresentHC %>% 
+  filter(AdditionalSkipByResID ==1 & skipbyResIDPattern ==0)%>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+ItemRemain = FinalPresentHC %>% 
+  filter(AdditionalSkipByResID ==1 & skipbyResIDPattern ==1 &
+           skipbyResIDPattern ==1) %>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the first worksheet and write the data frame to it
+addWorksheet(wb, "ISsection")
+
+writeData(wb, sheet = "ISsection", x = FinalPresentHC)
+
+# Add the second worksheet and write the message to it
+addWorksheet(wb, "SummaryIS")
+writeData(wb, sheet = "SummaryIS", 
+          x = c(paste("Total number of variables available in public file in HC section:", ItemPF),
+                paste("skipped only by r1dresid:", Itembyr1dresid),
+                paste("skipped by r1dresid and prior variables:", Itembyr1dresidandPrior),
+                paste("Remaining box:", ItemRemain),
+                "Remaining others: 0"))
+
+# Save the workbook
+saveWorkbook(wb, paste0(base_path, "outcomes/IS.xlsx"), overwrite = TRUE)

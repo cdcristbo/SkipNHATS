@@ -35,10 +35,11 @@ data <- read_dta(file_list)
 
 #FinalPresent<- processData(Part2, fullList, trueNames)
 #patternData = FinalPresent
-patternData = processData(Part2, fullList, trueNames)
+patternData = processData(Part2, fullList, trueNames,section="IS")
+#patternData <- processData(Part2, fullList, trueNames,section="IS")
 
 patternData = patternData %>% 
-  mutate(pattern = ifelse(Variable.name==name1,NA,pattern)) %>% 
+  #mutate(pattern = ifelse(Variable.name==name1,NA,pattern)) %>% 
   filter(!is.na(pattern) & !is.na(Variable.name))
 
 results_df = NULL
