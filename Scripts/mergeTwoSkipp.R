@@ -145,13 +145,13 @@ ItemRemain = FinalPresentHC %>%
 wb <- createWorkbook()
 
 # Add the first worksheet and write the data frame to it
-addWorksheet(wb, "ISsection")
+addWorksheet(wb, "HCsection")
 
-writeData(wb, sheet = "ISsection", x = FinalPresentHC)
+writeData(wb, sheet = "HCsection", x = FinalPresentHC)
 
 # Add the second worksheet and write the message to it
-addWorksheet(wb, "SummaryIS")
-writeData(wb, sheet = "SummaryIS", 
+addWorksheet(wb, "SummaryHC")
+writeData(wb, sheet = "SummaryHC", 
           x = c(paste("Total number of variables available in public file in HC section:", ItemPF),
                 paste("skipped only by r1dresid:", Itembyr1dresid),
                 paste("skipped by r1dresid and prior variables:", Itembyr1dresidandPrior),
@@ -159,4 +159,37 @@ writeData(wb, sheet = "SummaryIS",
                 "Remaining others: 0"))
 
 # Save the workbook
-saveWorkbook(wb, paste0(base_path, "outcomes/IS.xlsx"), overwrite = TRUE)
+saveWorkbook(wb, paste0(base_path, "outcomes/BaseWoCleanv06.xlsx"), overwrite = TRUE)
+
+FinalPresentHC <- read_excel("C:/Users/ccris/Downloads/BaseWoCleanv05 (1).xlsx")
+FinalPresentHC = FinalPresentHC %>% 
+  mutate(text = gsub("resid", "r1dresid", text),
+         text = gsub(",H", " or H", text),
+         text = gsub("HC2J", "hc1disescn10", text),
+         text = gsub("HC2I", "hc1disescn9", text),
+         text = gsub("HC7", "hc1hosptstay", text),
+         text = gsub("HC9A", "hc1kneesurg", text),
+         text = gsub("HC9B", "hc1knesrgyr", text),
+         text = gsub("HC10A", "hc1hipsurg", text),
+         text = gsub("HC10B", "hc1hipsrgyr", text),
+         text = gsub("HC11A", "hc1catarsurg", text),
+         text = gsub("HC11B", "hc1catrsrgyr", text),
+         text = gsub("HC12A", "hc1bckspnsur", text),
+         text = gsub("HC12B", "hc1backsrgyr", text),
+         text = gsub("HC13A", "hc1heartsurg", text),
+         text = gsub("HC13B", "hc1hartsrgyr", text),
+         text = gsub("HC14", "hc1fllsinmth", text),
+         text = gsub("HC15", "hc1worryfall", text),
+         text = gsub("HC17", "hc1faleninyr", text)
+                  ) %>% 
+  left_join(trueNames %>% 
+              distinct(`Questionnaire ITEM`,`SP Public File`,
+                       `Restricted (R) or Sensitive (S) Variable`) %>% 
+              mutate(File = case_when(!is.na(`SP Public File`) & is.na(`Restricted (R) or Sensitive (S) Variable`)~"1 SP Public File",
+                                      is.na(`SP Public File`) & !is.na(`Restricted (R) or Sensitive (S) Variable`)~"2 SP sensitive File",
+                                      is.na(`SP Public File`) & is.na(`Restricted (R) or Sensitive (S) Variable`)~"9 Not on File"
+              )) %>% 
+              rename(Questionnaire.ITEM = `Questionnaire ITEM`) %>% 
+              distinct(Questionnaire.ITEM,File)) %>% 
+  mutate(File = ifelse(is.na(File),"9 Not on File",File) )
+

@@ -1,5 +1,5 @@
 
-#patternData <- processData(Part2, fullList, trueNames,section="IS")
+#patternData <- processData(Part2, fullList, trueNames,section="HT")
 
 # Extract relevant columns from 'fullList'
 processData <- function(Part2, fullList, trueNames,section) {
@@ -10,7 +10,7 @@ processData <- function(Part2, fullList, trueNames,section) {
            fldItemID = `tblItem-ItemTag`)
   
   # Filter and join relevant data from 'complete', 'Part2', and 'trueNames'
-  items <- complete %>%
+items <- complete %>%
     #filter(fldSectionID != "IS") %>%
     left_join(Part2 %>% 
                 select(-fldResponseSchemeName)) %>%
@@ -19,18 +19,25 @@ processData <- function(Part2, fullList, trueNames,section) {
                 select(`Variable name`,`Questionnaire ITEM`) %>% 
                 rename(fldItemID = `Questionnaire ITEM`) %>%
                 distinct()) %>%
-    mutate(textSkip = ifelse(!is.na(fldSkipTo) , paste0( fldItemID ,"=",fldResponseID), NA)) %>% 
+    mutate(textSkip = ifelse(!is.na(fldSkipTo) , paste0( fldItemID ,"=",fldResponseID), NA)) %>%
+    group_by(fldSkipTo) %>% 
+    #mutate(text3 = paste(textSkip,collapse = ",")) %>% 
+    mutate(text2 = ifelse(all(is.na(textSkip)), NA, paste(textSkip, collapse = ' '))) %>% 
+    ungroup() %>% 
     select(-fldResponseID) %>% 
     distinct()  %>% 
     group_by(fldItemID) %>%  
     # summarise(length(unique(`Variable name`))) #verify that the values are unique IMPORTANT!!!!!!!!!!!!!!!!!!!!
-    mutate(text2 = paste(textSkip,sep = " or ")) %>% 
+    #mutate(text2 = paste(textSkip,sep = " or ")) %>% 
     select(-c(textSkip)) %>% 
     mutate(index = row_number()) %>%
+  
     filter(index==1) %>% 
     ungroup() %>% 
     mutate(postionInitial= seq(n())) %>% 
-    select(-c(`tblItem-Numb`,index))
+    select(-c(`tblItem-Numb`,index)) %>% 
+  mutate(fldSkipTo = toupper(fldSkipTo),
+         fldItemID =toupper(fldItemID)  )
     
 ItemSKips = items %>% 
   filter(text2!="NA") %>% 
@@ -53,7 +60,8 @@ data <- FinalItems %>%
     postionInitial = replace_na(postionInitial, -1),
     postionFinal = replace_na(postionFinal, -1),
     pattern = NA_character_
-   )# %>% 
+  )
+# %>% 
   # select(-`Variable name`) %>% 
   # left_join(trueNames %>% 
   #             distinct(`Questionnaire ITEM`,`Variable name`) %>% 
