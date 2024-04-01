@@ -1,5 +1,5 @@
 
-#patternData <- processData(Part2, fullList, trueNames,section="HT")
+#patternData5 <- processData(Part2, fullList, trueNames,section="HT")
 
 # Extract relevant columns from 'fullList'
 processData <- function(Part2, fullList, trueNames,section) {
@@ -19,23 +19,27 @@ items <- complete %>%
                 select(`Variable name`,`Questionnaire ITEM`) %>% 
                 rename(fldItemID = `Questionnaire ITEM`) %>%
                 distinct()) %>%
-    mutate(textSkip = ifelse(!is.na(fldSkipTo) , paste0( fldItemID ,"=",fldResponseID), NA)) %>%
+    mutate(textSkip = ifelse(!is.na(fldSkipTo) , paste0( `Variable name` ,"=",fldResponseID), NA)) %>%
     group_by(fldSkipTo) %>% 
     #mutate(text3 = paste(textSkip,collapse = ",")) %>% 
-    mutate(text2 = ifelse(all(is.na(textSkip)), NA, paste(textSkip, collapse = ' '))) %>% 
+    mutate(text2 = ifelse(all(is.na(textSkip)), NA, paste(textSkip, collapse = ','))) %>% 
     ungroup() %>% 
     select(-fldResponseID) %>% 
     distinct()  %>% 
-    group_by(fldItemID) %>%  
+  arrange(fldSkipTo) %>% 
+  group_by(fldItemID) %>%
+  
     # summarise(length(unique(`Variable name`))) #verify that the values are unique IMPORTANT!!!!!!!!!!!!!!!!!!!!
     #mutate(text2 = paste(textSkip,sep = " or ")) %>% 
     select(-c(textSkip)) %>% 
-    mutate(index = row_number()) %>%
+    mutate(index = seq(n())) %>%
   
     filter(index==1) %>% 
     ungroup() %>% 
+  arrange(`tblItem-Numb`) %>% 
     mutate(postionInitial= seq(n())) %>% 
-    select(-c(`tblItem-Numb`,index)) %>% 
+    
+  select(-c(`tblItem-Numb`,index)) %>% 
   mutate(fldSkipTo = toupper(fldSkipTo),
          fldItemID =toupper(fldItemID)  )
     
@@ -104,7 +108,12 @@ mutate(Variable.name = `Variable name`) %>%
     `Tracker File` = NA,
     `Restricted (R) or Sensitive (S) Variable` = NA,
     `Not on File` = NA
+  ) %>% 
+  mutate(
+    pattern = str_replace(pattern, `Variable name`, ""),
+    pattern = str_replace(pattern, ",=.*", "")
   )
+
   
 
   return(FinalPresent)

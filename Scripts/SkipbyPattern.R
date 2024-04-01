@@ -35,7 +35,7 @@ data <- read_dta(file_list)
 
 #FinalPresent<- processData(Part2, fullList, trueNames)
 #patternData = FinalPresent
-patternData = processData(Part2, fullList, trueNames,section="IS")
+patternData = processData(Part2, fullList, trueNames,section="HT")
 #patternData <- processData(Part2, fullList, trueNames,section="IS")
 
 patternData = patternData %>% 
@@ -57,23 +57,26 @@ for (i in seq_len(nrow(patternData))) {
       result <- getRowsGroup1(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name1)
     } else if (!is.na(pattern) && grepl(",", pattern)) {
       result <- getRowsGroup2(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name2)
-    } else {
-      result <- data.frame(
-        variable = targetColumn,
-        priorvariable = skipVariable,
-        outcome = NA,
-        stringsAsFactors = FALSE
-      )
-    }
+    } 
+    # else {
+    #   result <- data.frame(
+    #     variable = targetColumn,
+    #     priorvariable = skipVariable,
+    #     outcome = NA,
+    #     stringsAsFactors = FALSE
+    #   )
+    # }
     
     # Append the result to the dataframe
     results_df <- rbind(results_df, result)
+    print(paste("Iteration:", i))
+    print(result)
     
   }, error = function(e) {
     cat("Error in row", i, ":", conditionMessage(e), "\n")
   })
-  results_df = results_df %>% 
-    distinct()
+  # results_df = results_df %>% 
+  #   distinct()
   }
 
 #write.csv(results_df, file = paste0(base_path, "outcomes/delete.csv"), append = FALSE, quote = TRUE, sep = " ")

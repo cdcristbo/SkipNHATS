@@ -2,8 +2,8 @@
 # where '-1' has values different from zero in a contingency table
 # targetColumn = "hc1kneesurg"
 
-data = HC
-targetColumn = "is1dproxyid"
+# data = HC
+# targetColumn = "is1dproxyid"
 
 
 getRowsWithNonzeroValues <- function(data, targetColumn) {

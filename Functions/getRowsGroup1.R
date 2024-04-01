@@ -1,12 +1,19 @@
+# getRowsGroup1(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name1)
+# patternData = patternData[i, ]
+# targetColumn = patternData[i, ]$Variable.name
+# skipVariable = patternData[i, ]$name1
 # Function to create a dataframe with variables and values based on skip patterns
 getRowsGroup1 <- function(data, patternData, targetColumn, skipVariable) {
   
   # Extract relevant information from the patternData
   info <- patternData %>% 
-    filter(Variable.name == targetColumn) %>% 
-    filter(name1 == skipVariable) %>% 
+    #filter(Variable.name == targetColumn) %>% 
+    #filter(name1 == skipVariable) %>% 
     distinct(Variable.name, name1, pattern) %>% 
-    mutate(numberskip = as.numeric(str_extract(pattern, "(?<=\\=)\\d+")))
+    mutate(numberskip = as.numeric(str_extract(pattern, "(?<=\\=)\\d+"))) %>% 
+    mutate(
+      name1 = str_extract(pattern, "^[^=]*")
+    )
   # Alternative method to extract numberskip: mutate(numberskip = as.numeric(str_extract(pattern, "\\d+")))
   
   # Check if targetColumn and skipVariable are in the column names of the data
@@ -14,10 +21,10 @@ getRowsGroup1 <- function(data, patternData, targetColumn, skipVariable) {
     
     # Convert targetColumn and skipVariable to class "double" if not already
     if (!is.numeric(data[[targetColumn]])) {
-      data[[targetColumn]] <- as.numeric(data[[targetColumn]])
+      data[[info$Variable.name]] <- as.numeric(data[[info$Variable.name]])
     }
     if (!is.numeric(data[[skipVariable]])) {
-      data[[skipVariable]] <- as.numeric(data[[skipVariable]])
+      data[[info$name1]] <- as.numeric(data[[info$name1]])
     }
     
     # Identify the column name ending with "dresid"
@@ -41,7 +48,7 @@ getRowsGroup1 <- function(data, patternData, targetColumn, skipVariable) {
     }
     
     # Create a contingency table for skipVariable and targetColumn
-    tableSkipValues <- table(contingency_table3[[targetColumn]], contingency_table3[[skipVariable]])
+    tableSkipValues <- table(contingency_table3[[info$Variable.name]], contingency_table3[[info$name1]])
     
     # Check if "-1" is in the row names of tableSkipValues
     if ("-1" %in% rownames(tableSkipValues)) {
@@ -55,13 +62,13 @@ getRowsGroup1 <- function(data, patternData, targetColumn, skipVariable) {
       filter(Var2 == info$numberskip & Freq != 0)
     
     # Create a dataframe with the variable and the values
-    result_df <- data.frame(
-      variable = targetColumn,
-      priorvariable = skipVariable,
+    result_df1 <- data.frame(
+      variable = info$Variable.name,
+      priorvariable = info$name1,
       skipPrior = outcome,
       minus1Target = paste(tableFreq$Var1, collapse = ",")
     )
   }
   
-  return(result_df)
+  return(result_df1)
 }

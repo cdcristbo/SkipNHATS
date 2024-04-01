@@ -25,11 +25,12 @@ processData <- paste0(base_path, "Functions/processData.R")
 source(processData)
 
 # Process data using custom function
-patternData <- processData(Part2, fullList, trueNames,section="IS")
+patternData <- processData(Part2, fullList, trueNames,section="HT")
+#patternData <- processData(Part2, fullList, trueNames)
 
 # Remove unnecessary columns from result_df
 datsRdresid <- result_df %>% 
-  mutate(firstskipPattern = paste0("is1", label)) %>% 
+  mutate(firstskipPattern = paste0("hc1", label)) %>% 
   select(-label)
 
 # Filter out rows with missing values in pattern and Variable.name columns
@@ -38,7 +39,7 @@ patternData2 <- patternData %>%
 
 # Remove unnecessary columns from result_df
 datsRdresid <- result_df %>% 
-  mutate(firstskipPattern = paste0("is1", label)) %>% 
+  mutate(firstskipPattern = paste0("hc1", label)) %>% 
   select(-label)
 
 # Merge patternData, results_df, and result_df
@@ -46,7 +47,7 @@ FinalPresentHC <- patternData %>%
   left_join(results_df %>% 
               rename(Variable.name = variable)) %>% 
   left_join(result_df %>% 
-              mutate(firstskipPattern = paste0("is1", label)) %>% 
+              mutate(firstskipPattern = paste0("hc1", label)) %>% 
               select(-label) %>% 
               rename(Variable.name = firstskipPattern)) %>% 
   mutate(pattern = str_replace_all(pattern, ",", " or ")) %>% 

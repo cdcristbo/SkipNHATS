@@ -1,3 +1,9 @@
+# result <- getRowsGroup2(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name2)
+# data 
+# patternData = patternData[i, ] 
+# targetColumn = patternData[i, ]$Variable.name
+# skipVariable = patternData[i, ]$name2
+
 # Function to create a dataframe with variables and values based on skip patterns
 getRowsGroup2 <- function(data, patternData, targetColumn, skipVariable) {
   
@@ -6,7 +12,13 @@ getRowsGroup2 <- function(data, patternData, targetColumn, skipVariable) {
     #filter(Variable.name == targetColumn & name2 == skipVariable) %>% 
     mutate(numberskip1 = as.numeric(str_extract(item1, "(?<=\\=)\\d+"))) %>%
     mutate(numberskip2 = as.numeric(str_extract(item2, "(?<=\\=)\\d+"))) %>%
-    distinct(Variable.name, Questionnaire.ITEM, item1, name1, item2, name2, pattern, numberskip1, numberskip2)
+    distinct(Variable.name, Questionnaire.ITEM, item1, name1, item2, name2, pattern, numberskip1, numberskip2) %>% 
+    mutate(
+      name1 = str_extract(pattern, "^[^=]*"),
+      numberskip1 = as.numeric(str_extract(pattern, "(?<=\\=)\\d+(?=,)")),
+      name2 = str_extract(pattern, "(?<=,)\\w+(?=\\=)"),
+      numberskip2 = as.numeric(str_extract(pattern, "\\d+$"))
+    )
   
   # Check if targetColumn and skipVariable are in the column names of the data
   if (targetColumn %in% names(data) & skipVariable %in% names(data)) {
@@ -50,8 +62,9 @@ getRowsGroup2 <- function(data, patternData, targetColumn, skipVariable) {
         filter(if_all(all_of(filter_column), ~. != -8) )
     }
     
+    
     # Create a contingency table for skipVariable and targetColumn
-    tableSkipValues <- table(contingency_table3[[targetColumn]], contingency_table3[[skipVariable]])
+    tableSkipValues <- table(contingency_table3[[info$Variable.name]], contingency_table3[[info$name2]])
     
     # Check if "-1" is in the row names of tableSkipValues
     if ("-1" %in% rownames(tableSkipValues)) {
@@ -66,8 +79,8 @@ getRowsGroup2 <- function(data, patternData, targetColumn, skipVariable) {
     
     # Create a dataframe with the variable and the values
     result_df <- data.frame(
-      variable = targetColumn,
-      priorvariable = skipVariable,
+      variable = info$Variable.name,
+      priorvariable = info$name2,
       skipPrior = outcome,
       minus1Target = paste(tableFreq$Var1, collapse = ",")
     )
