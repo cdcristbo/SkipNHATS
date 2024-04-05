@@ -111,10 +111,12 @@ mutate(Variable.name = `Variable name`) %>%
   ) %>% 
   mutate(
     pattern = str_replace(pattern, `Variable name`, ""),
-    pattern = str_replace(pattern, ",=.*", "")
+    pattern = str_replace(pattern, ",=.*", ""),
+    pattern = case_when(
+      str_count(item1, ",") > 1 ~ item1,
+      TRUE ~ pattern
   )
-
-  
+)
 
   return(FinalPresent)
 }

@@ -30,7 +30,7 @@ patternData <- processData(Part2, fullList, trueNames,section="HT")
 
 # Remove unnecessary columns from result_df
 datsRdresid <- result_df %>% 
-  mutate(firstskipPattern = paste0("hc1", label)) %>% 
+  mutate(firstskipPattern = paste0("ht1", label)) %>% 
   select(-label)
 
 # Filter out rows with missing values in pattern and Variable.name columns
@@ -39,7 +39,7 @@ patternData2 <- patternData %>%
 
 # Remove unnecessary columns from result_df
 datsRdresid <- result_df %>% 
-  mutate(firstskipPattern = paste0("hc1", label)) %>% 
+  mutate(firstskipPattern = paste0("ht1", label)) %>% 
   select(-label)
 
 # Merge patternData, results_df, and result_df

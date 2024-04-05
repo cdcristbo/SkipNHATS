@@ -4,6 +4,7 @@ library(haven)
 library(readr)
 library(readxl)
 library(stringr)
+library(tidyr)
 # Specify the path to your Excel file
 
 # Set common base path
@@ -43,6 +44,7 @@ patternData = patternData %>%
   filter(!is.na(pattern) & !is.na(Variable.name))
 
 results_df = NULL
+
 # Iterate over each row in patternData
 for (i in seq_len(nrow(patternData))) {
   tryCatch({
@@ -50,22 +52,15 @@ for (i in seq_len(nrow(patternData))) {
     targetColumn <- patternData[i, "Variable.name"]
     skipVariable <- patternData[i, "name1"]
     pattern <- patternData[i, "pattern"]
-    # patternData <- patternData[i, ]
     
     # Check conditions to decide which function to apply
     if (!is.na(pattern) && !grepl(",", pattern)) {
-      result <- getRowsGroup1(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name1)
-    } else if (!is.na(pattern) && grepl(",", pattern)) {
-      result <- getRowsGroup2(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name2)
+      #result <- getRowsGroup1(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name1)
+    
+      result <- getRowsGroup1(data, patternData[i, ])
+      } else if (!is.na(pattern) && grepl(",", pattern)) {
+      result <- getRowsGroup2(data, patternData[i, ])
     } 
-    # else {
-    #   result <- data.frame(
-    #     variable = targetColumn,
-    #     priorvariable = skipVariable,
-    #     outcome = NA,
-    #     stringsAsFactors = FALSE
-    #   )
-    # }
     
     # Append the result to the dataframe
     results_df <- rbind(results_df, result)
@@ -75,9 +70,7 @@ for (i in seq_len(nrow(patternData))) {
   }, error = function(e) {
     cat("Error in row", i, ":", conditionMessage(e), "\n")
   })
-  # results_df = results_df %>% 
-  #   distinct()
-  }
+}
 
 #write.csv(results_df, file = paste0(base_path, "outcomes/delete.csv"), append = FALSE, quote = TRUE, sep = " ")
 save(results_df, file = paste0(base_path, "outcomes/SkipPattern.RData"))
