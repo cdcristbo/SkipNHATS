@@ -1,0 +1,306 @@
+# Load necessary libraries
+library(dplyr)  # For data manipulation
+library(haven)  # For reading data files
+library(tidyr)  # For data tidying
+library(readxl)  # For reading Excel files
+library(sas7bdat)  # For reading SAS files
+library(stringr)  # For string manipulation
+library(tidyr)
+library(readr)
+library(openxlsx)
+library(tidyverse)
+
+# Define the section to analyze
+section <- "hc"
+
+# Specify the path to your Excel file
+base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
+folder_path <- paste0(base_path, "datasets/SP")
+file_listSen = paste0(base_path,"datasets/sensitiveSP/r1/NHATS_Round_1_SP_Sen_Dem_File.sas7bdat")
+
+
+# Read the necessary Excel files
+Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
+fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
+#trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
+trueNames = read_excel("C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx")
+
+# Read the functions
+getRowsGroup1 <- paste0(base_path, "Functions/getRowsGroup1.R")
+getRowsGroup2 <- paste0(base_path, "Functions/getRowsGroup2.R")
+processData <- paste0(base_path, "Functions/processData.R")
+getRowsWithNonzeroValues <- paste0(base_path, "Functions/getRowsWithNonzeroValues.R")
+
+# Load the R script containing getRowsGroup1 and getRowsGroup2 function2
+source(getRowsGroup1)
+source(getRowsGroup2)
+source(processData)
+source(getRowsWithNonzeroValues)
+
+# Get a list of all .dta files in the folder
+file_list <- list.files(path = folder_path, pattern = ".dta", full.names = TRUE)
+file_list <- file_list[1]  # Select the first file only
+
+# Create an empty dataframe to store the results
+result_df <- data.frame(variable = character(0), round1Inaplicable = character(0))
+
+# Iterate through each dataset file
+for (file in file_list) {
+  # Read the dataset
+  data <- read_dta(file)
+  
+  # Read the sensitive data
+  dataSen <- read.sas7bdat(file_listSen)
+  
+  # Merge the dataset with the sensitive data
+  data <- data %>% 
+    left_join(dataSen) %>% 
+    select(-is1dproxyid)
+  
+  # Extract relevant columns from the dataset
+  HCAll <- data %>% 
+    select(spid, ends_with("dresid"), starts_with(section))
+  
+  # Extract column names with the pattern "^r\\d+dresid$"
+  resid_columns <- names(HCAll)[grepl("^r\\d+dresid$", names(HCAll))]
+  
+  # Find the column with the maximum value
+  max_value_column <- resid_columns[which.max(sapply(HCAll[resid_columns], max))]
+  
+  # Select relevant columns from the dataset (HC)
+  HC <- HCAll %>% 
+    select(spid, max_value_column, starts_with(section))
+  
+  # Get the names of the columns starting with "hc"
+  hc_columns <- grep(paste0("^",section), names(HC), value = TRUE)
+  
+  # Iterate through each hc_column
+  for (col in hc_columns) {
+    tryCatch({
+      # Call the function and append the results to the dataframe
+      result_df <- rbind(result_df, getRowsWithNonzeroValues(HC, col))
+    }, error = function(e) {
+      cat(paste("Error occurred for HC and column:", col, "\n"))
+    })
+  }
+}
+
+# Process and clean the result dataframe
+result_df <- result_df %>%  # Assign the modified dataframe back to result_df
+  select(-c(re, OtherSkip)) %>%  # Remove the columns 're' and 'OtherSkip' from the dataframe
+  mutate(indicatorByResID = ifelse(indicatorByResIDValue == "-1", 1, 0)) %>%  # Create a new column 'indicatorByResID' with values 1 if 'indicatorByResIDValue' is "-1", otherwise 0
+  mutate(round = as.integer(gsub(paste0(section,"(\\d+).*"), "\\1", variable))) %>%  # Extract the numeric part from the 'variable' column and assign it to the new column 'round'
+  mutate(label = sub(paste0(section,"\\d+"), "", variable)) %>%  # Remove the 'hc' prefix and the numeric part from the 'variable' column and assign it to the new column 'label'
+  select(-variable) %>%  # Remove the 'variable' column from the dataframe
+  filter(round == 1)  # Keep only the rows where 'round' is equal to 1
+
+#save(result_df, file = paste0(base_path, "outcomes/Rdresid.RData"))
+
+####################################################################################
+# part 2 skippbypattern
+####################################################################################
+
+patternData = processData(Part2, fullList, trueNames,section =  paste0(toupper(section)))
+
+#patternData <- processData(Part2, fullList, trueNames,section="IS")
+
+patternData = patternData %>% 
+  #mutate(pattern = ifelse(Variable.name==name1,NA,pattern)) %>% 
+  filter(!is.na(pattern) & !is.na(Variable.name))
+
+results_df = NULL
+
+# Iterate over each row in patternData
+for (i in seq_len(nrow(patternData))) {
+  tryCatch({
+    # Extract the targetColumn, skipVariable, and pattern from the current row
+    targetColumn <- patternData[i, "Variable.name"]
+    skipVariable <- patternData[i, "name1"]
+    pattern <- patternData[i, "pattern"]
+    
+    # Check conditions to decide which function to apply
+    if (!is.na(pattern) && !grepl(",", pattern)) {
+      #result <- getRowsGroup1(data, patternData[i, ], patternData[i, ]$Variable.name, patternData[i, ]$name1)
+      
+      result <- getRowsGroup1(data, patternData[i, ])
+    } else if (!is.na(pattern) && grepl(",", pattern)) {
+      result <- getRowsGroup2(data, patternData[i, ])
+    } 
+    
+    # Append the result to the dataframe
+    results_df <- rbind(results_df, result)
+    print(paste("Iteration:", i))
+    print(result)
+    
+  }, error = function(e) {
+    cat("Error in row", i, ":", conditionMessage(e), "\n")
+  })
+}
+
+################################################################################
+# merge both dataframes
+################################################################################
+patternData <- processData(Part2, fullList, trueNames, section =paste0(toupper(section)))
+
+datsRdresid <- result_df %>% 
+  mutate(firstskipPattern = paste0( paste0(section,"1"), label)) %>% 
+  select(-label)
+
+# Filter out rows with missing values in pattern and Variable.name columns
+patternData2 <- patternData %>% 
+  filter(!is.na(pattern) & !is.na(Variable.name))
+
+# Remove unnecessary columns from result_df
+datsRdresid <- result_df %>% 
+  mutate(firstskipPattern = paste0(paste0(section,"1"), label)) %>% 
+  select(-label)
+
+# Merge patternData, results_df, and result_df
+FinalPresentHC <- patternData %>% 
+  left_join(results_df %>% 
+              rename(Variable.name = variable)) %>% 
+  left_join(result_df %>% 
+              mutate(firstskipPattern = paste0(paste0(section,"1"), label)) %>% 
+              select(-label) %>% 
+              rename(Variable.name = firstskipPattern)) %>% 
+  mutate(pattern = str_replace_all(pattern, ",", " or ")) %>% 
+  mutate(skipPrior = gsub(",\\s*-1", "", skipPrior)) %>%
+  mutate(skippedResid = ifelse(OtherSkip2 == "1, 2", 1, 0),
+         skippedbyBoth = ifelse(
+           is.na(skipPrior) | 
+             grepl("-8|-7|=(\\d+)", skipPrior) | 
+             grepl("=(\\d+)", pattern),0,1),
+         skippedbyBoth = ifelse(is.na(pattern), 2, skippedbyBoth)) %>%
+  mutate(Indicator2 = case_when(
+    skippedResid == 1 & skippedbyBoth == 0 ~ 0,
+    skippedResid == 1 & skippedbyBoth == 1 ~ 1,
+    skippedResid == 1 & skippedbyBoth == 2 ~ 1,
+    skippedResid == 0 & skippedbyBoth == 1 ~ 1,
+    skippedResid == 0 & skippedbyBoth == 2 ~ 0,  
+    skippedResid == 0 & skippedbyBoth == 0 ~ 0
+  )) %>%
+  select(c("fldSectionID", "Questionnaire.ITEM", "Variable.name", "fldResponseID", "pattern", "OtherSkip2",
+           "indicatorByResIDValue", "skipPrior", "indicatorByResID", "minus1Target",
+           "skippedResid", "skippedbyBoth", "Indicator2")) %>% 
+  mutate(pattern = str_replace(pattern, "=\\d+$", ""),
+         pattern = ifelse(!is.na(skipPrior), paste0(pattern, "=", skipPrior), NA),
+         textResID = ifelse(!is.na(indicatorByResID), "resid=4", NA),
+         text = case_when(
+           is.na(textResID) & is.na(pattern) ~ NA,
+           is.na(textResID) & !is.na(pattern) ~ pattern,
+           !is.na(textResID) & is.na(pattern) ~ textResID,
+           !is.na(textResID) & !is.na(pattern) ~ paste0(textResID, " or ", pattern)),
+         text = ifelse(is.na(text), "FileNotinSP", text)) %>% 
+  select(-c(textResID, pattern)) %>% 
+  ungroup() %>% 
+  group_by(Questionnaire.ITEM) %>% 
+  distinct() %>% 
+  mutate(fldResponsesID = paste(fldResponseID, collapse = ",")) %>% 
+  ungroup() %>% 
+  select(-fldResponseID) %>% 
+  distinct() %>% 
+  select("fldSectionID", "Questionnaire.ITEM", "Variable.name", "fldResponsesID", "OtherSkip2", "indicatorByResIDValue", "skipPrior", "text") %>% 
+  mutate(skipbyuniplicable = case_when(
+    is.na(OtherSkip2) ~ NA,
+    OtherSkip2 == " " ~ 0,
+    !is.na(OtherSkip2) ~ 1
+  ),
+  skipbyResIDValue = case_when(
+    indicatorByResIDValue == "-1" ~ 1,
+    is.na(indicatorByResIDValue) ~ NA,
+    indicatorByResIDValue != "-1" ~ 0
+  ),
+  skipbyResIDPattern = case_when(
+    is.na(skipbyuniplicable) & is.na(skipPrior) ~ NA,
+    skipbyuniplicable == 0 & !is.na(skipPrior) ~ 0,
+    skipbyuniplicable == 0 & is.na(skipPrior) ~ 0,
+    skipbyuniplicable == 1 & !is.na(skipPrior) ~ 0,
+    skipbyuniplicable == 1 & is.na(skipPrior) ~ 1
+  )) %>% 
+  select(-c("OtherSkip2", "indicatorByResIDValue", "skipPrior")) %>% 
+  select("fldSectionID", "Questionnaire.ITEM", "Variable.name", "fldResponsesID",    
+         "skipbyResIDValue","skipbyuniplicable", "skipbyResIDPattern", "text") %>% 
+  rename(AdditionalSkipByResID = "skipbyuniplicable",
+         skipbyResID = "skipbyResIDValue",
+         skipbyResIDPattern = "skipbyResIDPattern") %>% 
+  # left_join(results_box %>% 
+  #             select(Questionnaire.ITEM ,simpleBoxSkip,textBox )) %>% 
+  # mutate(text = ifelse(is.na(textBox),text,paste0(text," or ",textBox)) ,
+  #        simpleBoxSkip =ifelse(is.na(simpleBoxSkip),skipbyResIDPattern,0)) %>% 
+  # select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","skipbyResID","AdditionalSkipByResID","skipbyResIDPattern","simpleBoxSkip","text") %>% 
+  # mutate(AdditionalSkipByResID = ifelse(skipbyResID==0,0,AdditionalSkipByResID))
+left_join(
+ trueNames %>% 
+  distinct(`Questionnaire ITEM`, 
+           `SP Public File`, 
+           `OP Public File`, 
+           `Tracker File`, 
+           `Restricted (R) or Sensitive (S) Variable`, 
+           `Not on File`) %>%
+  mutate(`Restricted (R) or Sensitive (S) Variable` = ifelse(is.na(`Restricted (R) or Sensitive (S) Variable`), NA, "X"),
+         `Not on File` = ifelse(is.na(`Not on File`), NA, "X")) %>%
+  pivot_longer(
+    cols = -`Questionnaire ITEM`, 
+    names_to = "location", 
+    values_to = "value"
+  ) %>%
+  filter(!is.na(`Questionnaire ITEM`) & value == "X") %>% 
+   rename(Questionnaire.ITEM = `Questionnaire ITEM` ) %>% 
+   select(-value)
+) %>% 
+select(-fldResponsesID) %>% 
+left_join(
+ Part2 %>%
+  distinct(fldItemID, fldResponseID) %>%
+  group_by(fldItemID) %>%
+  summarise(values = paste(fldResponseID, collapse = ",")) %>%
+  ungroup() %>% 
+  rename(fldResponsesID = values,
+         Questionnaire.ITEM = fldItemID)
+) %>% 
+select("fldSectionID","Questionnaire.ITEM","Variable.name","fldResponsesID","skipbyResID","AdditionalSkipByResID",
+       "skipbyResIDPattern","text","location")
+
+
+ItemPF = FinalPresentHC %>% 
+  filter(skipbyResID==1) %>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+Itembyr1dresid = FinalPresentHC %>% 
+  filter(skipbyResID ==1 & AdditionalSkipByResID ==0)%>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+Itembyr1dresidandPrior = FinalPresentHC %>% 
+  filter(AdditionalSkipByResID ==1 & skipbyResIDPattern ==0)%>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+ItemRemain = FinalPresentHC %>% 
+  filter(AdditionalSkipByResID ==1 & skipbyResIDPattern ==1 &
+           skipbyResIDPattern ==1) %>% 
+  summarise(n()) %>% 
+  as.numeric()
+
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add the first worksheet and write the data frame to it
+addWorksheet(wb, paste0(toupper(section), "section")  )
+
+writeData(wb, sheet = "HCsection", x = FinalPresentHC)
+
+# Add the second worksheet and write the message to it
+addWorksheet(wb,paste0("Summary",section) )
+writeData(wb, sheet = paste0("Summary",section), 
+          x = c(paste("Total number of variables available in public file in section:", ItemPF),
+                paste("skipped only by r1dresid:", Itembyr1dresid),
+                paste("skipped by r1dresid and prior variables:", Itembyr1dresidandPrior),
+                paste("Remaining box:", ItemRemain),
+                "Remaining others: 0"))
+
+# Save the workbook
+saveWorkbook(wb, paste0(base_path, paste0("outcomes/Base" ,section,".xlsx")), overwrite = TRUE)
+

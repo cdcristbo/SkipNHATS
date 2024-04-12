@@ -1,5 +1,5 @@
 
-#patternData5 <- processData(Part2, fullList, trueNames,section="HT")
+#patternData5 <- processData(Part2, fullList, trueNames,section="HH")
 
 # Extract relevant columns from 'fullList'
 processData <- function(Part2, fullList, trueNames,section) {
@@ -11,6 +11,8 @@ processData <- function(Part2, fullList, trueNames,section) {
   
   # Filter and join relevant data from 'complete', 'Part2', and 'trueNames'
 items <- complete %>%
+  mutate(fldItemID = toupper(fldItemID)) %>% 
+  
     #filter(fldSectionID != "IS") %>%
     left_join(Part2 %>% 
                 select(-fldResponseSchemeName)) %>%
@@ -19,7 +21,7 @@ items <- complete %>%
                 select(`Variable name`,`Questionnaire ITEM`) %>% 
                 rename(fldItemID = `Questionnaire ITEM`) %>%
                 distinct()) %>%
-    mutate(textSkip = ifelse(!is.na(fldSkipTo) , paste0( `Variable name` ,"=",fldResponseID), NA)) %>%
+    mutate( textSkip= ifelse(!is.na(fldSkipTo) , paste0( `Variable name` ,"=",fldResponseID), NA)) %>%
     group_by(fldSkipTo) %>% 
     #mutate(text3 = paste(textSkip,collapse = ",")) %>% 
     mutate(text2 = ifelse(all(is.na(textSkip)), NA, paste(textSkip, collapse = ','))) %>% 

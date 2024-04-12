@@ -31,12 +31,12 @@ folder_path <- paste0(base_path, "datasets/SP")
 file_list <- list.files(path = folder_path, pattern = ".dta", full.names = TRUE)
 file_list = file_list[1]
 # Create an empty dataframe to store the results
-result_df <- data.frame(variable = character(0), round1Inaplicable = character(0))
+#result_df <- data.frame(variable = character(0), round1Inaplicable = character(0))
 data <- read_dta(file_list)
 
 #FinalPresent<- processData(Part2, fullList, trueNames)
 #patternData = FinalPresent
-patternData = processData(Part2, fullList, trueNames,section="HT")
+patternData = processData(Part2, fullList, trueNames,section="HC")
 #patternData <- processData(Part2, fullList, trueNames,section="IS")
 
 patternData = patternData %>% 

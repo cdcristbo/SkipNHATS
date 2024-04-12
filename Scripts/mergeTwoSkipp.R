@@ -25,7 +25,7 @@ processData <- paste0(base_path, "Functions/processData.R")
 source(processData)
 
 # Process data using custom function
-patternData <- processData(Part2, fullList, trueNames,section="HT")
+patternData <- processData(Part2, fullList, trueNames,section="HC")
 #patternData <- processData(Part2, fullList, trueNames)
 
 # Remove unnecessary columns from result_df
