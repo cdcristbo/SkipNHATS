@@ -1,4 +1,4 @@
-# Load necessary libraries
+# Load necessa
 library(dplyr)  # For data manipulation
 library(haven)  # For reading data files
 library(tidyr)  # For data tidying
@@ -11,15 +11,27 @@ library(openxlsx)
 library(tidyverse)
 
 # Define the section to analyze
-section <- "hc"
+section <- "ht"
+section_list  = "ht"
+# Specify the list of section values
+section_list <- c("is" ,"re" ,"hc" ,"ht" ,"se" ,"hh" ,"cs" ,
+"sn" ,"ho" ,"em" ,"cm" ,"te" ,"md" ,"ss" ,"pc" ,"cp" ,"cg" ,
+"mo" ,"dm" ,"dt" ,"ha" ,"sc" ,"ds" ,"mc" ,"pa" ,"sd" ,"pe" ,
+"hw" ,"el" ,"rl" ,"va" ,"wb" ,"ip" ,"lf" ,"hp" ,"ia" ,"co" ,
+"ew" ,"hl" ,"cc" ,"ls" ,"cl" ,"ir" ,"fq")  # Add more section values as needed
 
-# Specify the path to your Excel file
-base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
-folder_path <- paste0(base_path, "datasets/SP")
-file_listSen = paste0(base_path,"datasets/sensitiveSP/r1/NHATS_Round_1_SP_Sen_Dem_File.sas7bdat")
-
-
-# Read the necessary Excel files
+# Create a function to run the code for each section
+runCodeForSection <- function(section) {
+  tryCatch({
+    # Place the entire code block here, replacing 'section' with the current section value
+    
+    # Specify the path to your Excel file
+    base_path <- "C:/Users/ccris/Dropbox (University of Michigan)/carlos/Work/Nhats/SkipNHATS/"
+    folder_path <- paste0(base_path, "datasets/SP")
+    file_listSen = paste0(base_path,"datasets/sensitiveSP/r1/NHATS_Round_1_SP_Sen_Dem_File.sas7bdat")
+    
+    # Rest of the code...
+    # Read the necessary Excel files
 Part2 <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "ItemResponse")
 fullList <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATSNationalStudyRound1SpecWriterExchange.xlsx"), sheet = "Item")
 #trueNames <- read_excel(paste0(base_path, "datasets/SkipDataset/NHATS_R1_Crosswalk_between_Instruments_and_Codebook_0.xlsx"))
@@ -290,7 +302,7 @@ wb <- createWorkbook()
 # Add the first worksheet and write the data frame to it
 addWorksheet(wb, paste0(toupper(section), "section")  )
 
-writeData(wb, sheet = "HCsection", x = FinalPresentHC)
+writeData(wb, sheet = paste0(toupper(section), "section"), x = FinalPresentHC)
 
 # Add the second worksheet and write the message to it
 addWorksheet(wb,paste0("Summary",section) )
@@ -301,6 +313,21 @@ writeData(wb, sheet = paste0("Summary",section),
                 paste("Remaining box:", ItemRemain),
                 "Remaining others: 0"))
 
-# Save the workbook
-saveWorkbook(wb, paste0(base_path, paste0("outcomes/Base" ,section,".xlsx")), overwrite = TRUE)
 
+    # Save the workbook
+    saveWorkbook(wb, paste0(base_path, paste0("outcomes/Base" ,section,".xlsx")), overwrite = TRUE)
+    
+    # Print a success message
+    cat(paste("Code executed successfully for section:", section, "\n"))
+    
+  }, error = function(e) {
+    # Print the error message and continue with the next section
+    cat(paste("Error occurred for section:", section, "\n"))
+  })
+}
+
+# Iterate through each section value
+for (section in section_list) {
+  runCodeForSection(section)
+}
+ 
